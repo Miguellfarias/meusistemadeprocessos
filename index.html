@@ -3,176 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Parceiros LSA — Processos</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+<title>Parceiros LSA — Sistema Avançado</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
-:root{
-  --bg:#FFFFFF;--card:#FFFFFF;--card2:#FFFFFF;
-  --border:rgba(0,0,0,.08);--border2:rgba(0,0,0,.12);
-  --blue:#4F8EF7;--blue-bg:rgba(79,142,247,.10);--blue-bd:rgba(79,142,247,.35);
-  --red:#F07057;--red-bg:rgba(240,112,87,.08);--red-bd:rgba(240,112,87,.22);
-  --txt:#1E1E1E;--txt2:#5E5E5E;--txt3:#8A8A8A;--white:#FFFFFF;
+/* --- DESIGN SYSTEM --- */
+:root {
+  --bg-primary: #FFFFFF; --bg-secondary: #F9FAFB; --bg-tertiary: #F3F4F6;
+  --surface: #FFFFFF; --border: #E5E7EB;
+  --text-primary: #111827; --text-secondary: #4B5563; --text-tertiary: #9CA3AF;
+  --blue: #3B82F6; --blue-hover: #2563EB; --blue-bg: rgba(59,130,246,0.1);
+  --red: #EF4444; --red-bg: rgba(239,68,68,0.1);
+  --green: #10B981; --green-bg: rgba(16,185,129,0.1);
+  --yellow: #F59E0B;
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --radius-lg: 0.75rem; --radius-xl: 1rem;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Outfit',Arial,sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;overscroll-behavior:none;-webkit-font-smoothing:antialiased}
-input,select,textarea,button{font-family:inherit}
-input::placeholder,textarea::placeholder{color:var(--txt3)}
-select option{background:#fff;color:var(--txt)}
-::-webkit-scrollbar{width:0}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes scaleIn{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.8}}
-
-/* HEADER */
-#header{position:sticky;top:0;z-index:100;background:rgba(12,12,10,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.06);padding-top:env(safe-area-inset-top)}
-.header-inner{padding:18px 20px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.brand-eyebrow{font-size:10px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);display:block;margin-bottom:3px}
-.brand-name{font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;font-weight:600;color:#fff;line-height:1.1;display:flex;align-items:center;gap:8px}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:#4A4845;flex-shrink:0;transition:all .5s}
-.sync-dot.live{background:var(--blue);box-shadow:0 0 8px rgba(79,142,247,.5)}
-.back-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:9px;color:#fff;font-size:12px;font-weight:600;padding:7px 14px;cursor:pointer;white-space:nowrap;margin-top:2px;-webkit-user-select:none}
-#connecting{display:flex;align-items:center;gap:7px;padding:8px 20px 12px;font-size:11px;color:#8A8880}
-#connecting .ring{width:11px;height:11px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);border-top-color:var(--blue);animation:spin .7s linear infinite;flex-shrink:0}
-.tabs{display:flex;overflow-x:auto;padding:12px 20px 0;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{display:flex;align-items:center;gap:8px;padding:10px 16px 13px;border-bottom:2px solid var(--blue);white-space:nowrap;flex-shrink:0}
-.tab .num{font-size:19px;font-weight:700;color:var(--blue)}
-.tab .lbl{font-size:12px;font-weight:500;color:var(--blue)}
-
-/* LOGIN */
-#loginScreen{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:#0C0C0A}
-.login-logo{font-family:'Cormorant Garamond',Georgia,serif;font-size:34px;font-weight:600;color:#fff;margin-bottom:6px;text-align:center}
-.login-sub{font-size:11px;color:#6a6864;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:48px;text-align:center}
-.login-box{background:#1A1A17;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:28px 24px;width:100%;max-width:360px}
-.login-label{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#6a6864;display:block;margin-bottom:10px}
-.pin-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;color:#fff;padding:16px 14px;font-size:22px;font-weight:700;text-align:center;letter-spacing:8px;outline:none;transition:border-color .18s;-webkit-appearance:none}
-.pin-input:focus{border-color:var(--blue-bd)}
-.pin-input::placeholder{letter-spacing:2px;font-size:14px;font-weight:400;color:#4a4845}
-.btn-primary{width:100%;margin-top:14px;padding:15px;border-radius:13px;font-size:15px;font-weight:700;background:var(--blue);border:none;color:#fff;cursor:pointer;-webkit-user-select:none}
-.btn-primary:active{opacity:.85}
-.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:#3a3835;font-size:12px}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
-.btn-ghost-dark{width:100%;padding:13px;border-radius:13px;font-size:13px;font-weight:600;background:transparent;border:1px solid rgba(255,255,255,.1);color:#6a6864;cursor:pointer;-webkit-user-select:none}
-.btn-ghost-dark:active{background:rgba(255,255,255,.05)}
-.login-error{color:#F07057;font-size:12px;text-align:center;margin-top:10px;min-height:18px}
-.admin-auth-box{background:#1A1A17;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:28px 24px;width:100%;max-width:360px}
-.admin-auth-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:600;color:#fff;margin-bottom:20px;text-align:center}
-.dark-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;color:#fff;padding:13px 14px;font-size:15px;outline:none;transition:border-color .18s;-webkit-appearance:none;margin-bottom:14px}
-.dark-input:focus{border-color:var(--blue-bd)}
-
-/* LIST */
-#list{padding:14px 16px 130px;display:flex;flex-direction:column;gap:10px}
-.skel{background:#F5F5F5;border:1px solid var(--border);border-radius:18px;padding:16px;display:flex;align-items:center;gap:13px}
-.skel-av{width:44px;height:44px;border-radius:13px;background:#E0E0E0;flex-shrink:0;animation:pulse 1.4s ease infinite}
-.skel-info{flex:1}
-.skel-line{height:12px;background:#E0E0E0;border-radius:5px;margin-bottom:8px;animation:pulse 1.4s ease infinite}
-.skel-line.wide{width:60%}.skel-line.short{width:38%;margin-bottom:0}
-
-/* INDICADOR CARDS */
-.ind-card{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;animation:fadeUp .28s cubic-bezier(.16,1,.3,1) both;box-shadow:0 2px 8px rgba(0,0,0,.03)}
-.ind-head{display:flex;align-items:center;gap:13px;padding:16px;cursor:pointer;user-select:none;-webkit-user-select:none}
-.ind-head:active{background:rgba(0,0,0,.02)}
-.ind-avatar{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
-.ind-info{flex:1;min-width:0}
-.ind-name{font-size:15px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
-.ind-pin{font-size:11px;color:var(--txt3)}
-.arr{font-size:20px;color:var(--txt3);margin-left:4px}
-
-/* PROCESS CARDS */
-.card{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:border-color .2s;animation:fadeUp .28s cubic-bezier(.16,1,.3,1) both;box-shadow:0 2px 8px rgba(0,0,0,.02)}
-.card.pend{border-color:var(--red-bd)}
-.card-head{display:flex;align-items:center;gap:13px;padding:16px;cursor:pointer;user-select:none;-webkit-user-select:none}
-.card-head:active{background:rgba(0,0,0,.02)}
-.avatar{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
-.avatar.pend{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
-.card-info{flex:1;min-width:0}
-.card-name{font-size:15px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
-.card-tipo{font-size:11px;color:var(--txt2)}
-.card-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
-.badge.pend{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
-.badge-dot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0}
-.pend-count{font-size:10px;color:var(--txt3)}
-.chevron{color:var(--txt3);font-size:18px;transition:transform .22s cubic-bezier(.16,1,.3,1);margin-left:2px}
-.chevron.open{transform:rotate(180deg)}
-.card-body{border-top:1px solid var(--border);padding:16px;background:#FAFAFA;animation:fadeUp .18s ease both}
-.sec-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--txt3);margin-bottom:10px}
-.pend-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px}
-.pchip{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:9px;font-size:12px;font-weight:500;background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd);cursor:pointer;-webkit-user-select:none;transition:opacity .15s,transform .15s}
-.pchip:active{opacity:.7;transform:scale(.97)}
-.pchip.ro{cursor:default}
-.pchip .cx{font-size:10px;opacity:.7}
-.pend-hint{font-size:10px;color:var(--txt3);margin-top:6px;margin-bottom:14px}
-.obs-box{background:rgba(79,142,247,.04);border-left:2px solid var(--blue-bd);border-radius:0 9px 9px 0;padding:10px 13px;margin-bottom:14px}
-.obs-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:4px}
-.obs-txt{font-size:13px;color:var(--txt2);line-height:1.5}
-.card-date{font-size:10px;color:var(--txt3);margin-bottom:14px}
-.actions{display:flex;gap:8px;flex-wrap:wrap;padding-top:13px;border-top:1px solid var(--border)}
-.abtn{display:inline-flex;align-items:center;gap:5px;padding:9px 16px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;-webkit-user-select:none;transition:opacity .15s,transform .15s}
-.abtn:active{transform:scale(.97)}
-.abtn-ghost{background:#F0F0F0;border-color:var(--border2);color:var(--txt)}
-.abtn-blue{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue)}
-.abtn-danger{background:var(--red-bg);border-color:var(--red-bd);color:var(--red);margin-left:auto}
-
-/* FAB */
-#fab{position:fixed;bottom:calc(28px + env(safe-area-inset-bottom));right:20px;z-index:200;width:58px;height:58px;border-radius:19px;background:var(--blue);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;box-shadow:0 8px 28px rgba(79,142,247,.35),0 2px 8px rgba(0,0,0,.1);transition:transform .15s;-webkit-user-select:none}
-#fab:active{transform:scale(.92)}
-#fab.hidden{display:none}
-
-/* EMPTY */
-.empty{display:flex;flex-direction:column;align-items:center;padding:72px 24px;text-align:center}
-.empty-icon{font-size:44px;margin-bottom:14px;opacity:.22}
-.empty-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;font-weight:600;color:var(--txt2);margin-bottom:6px}
-.empty-sub{font-size:13px;color:var(--txt3);line-height:1.6}
-
-/* OVERLAY / SHEET */
-.overlay{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .18s ease both}
-.sheet{background:var(--card2);border-radius:24px 24px 0 0;border:1px solid var(--border2);border-bottom:none;width:100%;max-width:600px;max-height:92dvh;overflow-y:auto;padding:0 20px calc(28px + env(safe-area-inset-bottom));animation:scaleIn .28s cubic-bezier(.16,1,.3,1) both}
-.sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:14px auto 22px}
-.sheet-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;font-weight:600;color:var(--txt);margin-bottom:24px}
-.field{margin-bottom:18px}
-.field-lbl{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--txt3);display:block;margin-bottom:8px}
-.field input,.field select,.field textarea{width:100%;background:#F9F9F9;border:1px solid var(--border2);border-radius:12px;color:var(--txt);padding:13px 14px;font-size:15px;outline:none;transition:border-color .18s;-webkit-appearance:none;appearance:none}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue-bd)}
-.field textarea{resize:vertical;min-height:75px;line-height:1.5}
-.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238A8A8A' d='M6 8L0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
-.ptog-grid{display:flex;flex-wrap:wrap;gap:7px}
-.ptog{padding:7px 12px;border-radius:9px;font-size:12px;font-weight:500;cursor:pointer;background:transparent;border:1px solid var(--border2);color:var(--txt3);-webkit-user-select:none;transition:all .15s}
-.ptog.on{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
-.ptog:active{transform:scale(.96)}
-.custom-row{display:flex;gap:8px;margin-top:10px}
-.custom-row input{flex:1;background:#F9F9F9;border:1px solid var(--border2);border-radius:10px;color:var(--txt);padding:11px 13px;font-size:13px;outline:none}
-.custom-row input:focus{border-color:var(--blue-bd)}
-.custom-row button{padding:0 15px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);white-space:nowrap}
-.cchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.cchip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;font-size:11px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
-.cchip .rm{cursor:pointer;opacity:.7;margin-left:2px}
-.sfooter{display:flex;gap:10px;margin-top:24px}
-.sbtn-cancel{flex:1;padding:15px;border-radius:13px;font-size:15px;font-weight:500;background:transparent;border:1px solid var(--border2);color:var(--txt3);cursor:pointer}
-.sbtn-save{flex:2;padding:15px;border-radius:13px;font-size:15px;font-weight:700;background:var(--blue);border:none;color:#fff;cursor:pointer}
-.sbtn-save:active{opacity:.85}
-.del-sheet{background:var(--card2);border-radius:24px 24px 0 0;border:1px solid var(--border2);border-bottom:none;width:100%;max-width:600px;padding:0 20px calc(28px + env(safe-area-inset-bottom));animation:scaleIn .28s cubic-bezier(.16,1,.3,1) both}
-.del-icon{font-size:38px;text-align:center;margin:22px 0 10px}
-.del-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:600;color:var(--txt);text-align:center;margin-bottom:8px}
-.del-sub{font-size:13px;color:var(--txt3);text-align:center;margin-bottom:24px}
-.del-footer{display:flex;gap:10px}
-.sbtn-delconf{flex:1;padding:15px;border-radius:13px;font-size:15px;font-weight:700;background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);cursor:pointer}
-#toast{position:fixed;bottom:calc(102px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(12px);opacity:0;transition:all .28s cubic-bezier(.16,1,.3,1);padding:11px 22px;border-radius:999px;font-size:13px;font-weight:600;pointer-events:none;white-space:nowrap;z-index:9999;border:1px solid transparent}
+.dark { --bg-primary: #0F172A; --bg-secondary: #1E293B; --surface: #1E293B;
+  --border: #334155; --text-primary: #F1F5F9; --text-secondary: #CBD5E1;
+  --blue: #60A5FA; --red: #F87171; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font-sans); background: var(--bg-primary); color: var(--text-primary); transition: background 0.2s; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+.app-header { position: sticky; top: 0; z-index: 50; background: var(--surface); border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
+.header-content { padding: var(--space-4) var(--space-5); display: flex; align-items: center; justify-content: space-between; max-width: 1400px; margin: 0 auto; }
+.logo h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, var(--blue), #8B5CF6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.header-actions { display: flex; gap: var(--space-3); }
+.theme-toggle, .back-btn { background: var(--bg-tertiary); border-radius: 999px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+.back-btn { width: auto; padding: 0 16px; border-radius: 20px; }
+.container { max-width: 1400px; margin: 0 auto; padding: var(--space-4) var(--space-5); }
+.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6); }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: var(--space-4); box-shadow: var(--shadow-sm); }
+.stat-title { font-size: 0.875rem; color: var(--text-tertiary); }
+.stat-value { font-size: 1.875rem; font-weight: 800; }
+.filters-bar { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-5); align-items: center; }
+.search-input, .sort-select { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-2) var(--space-3); color: var(--text-primary); flex: 1; }
+.filter-btn { background: var(--bg-tertiary); padding: var(--space-2) var(--space-4); border-radius: var(--radius-lg); }
+.filter-btn.active { background: var(--blue); color: white; }
+.process-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); margin-bottom: var(--space-4); overflow: hidden; transition: all 0.2s; }
+.card-header { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4); cursor: pointer; }
+.avatar { width: 52px; height: 52px; border-radius: var(--radius-xl); background: var(--blue-bg); color: var(--blue); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem; }
+.card-info { flex: 1; }
+.card-title { font-weight: 700; }
+.progress-bar { margin-top: var(--space-2); height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--blue); width: 0%; transition: width 0.2s; }
+.badge-priority { padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+.badge-high { background: var(--red-bg); color: var(--red); }
+.badge-medium { background: rgba(245,158,11,0.1); color: var(--yellow); }
+.badge-low { background: var(--green-bg); color: var(--green); }
+.expand-icon { transition: transform 0.2s; }
+.expand-icon.open { transform: rotate(180deg); }
+.card-body { border-top: 1px solid var(--border); padding: var(--space-4); background: var(--bg-secondary); }
+.toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast { background: var(--surface); padding: 10px 20px; border-radius: 999px; box-shadow: var(--shadow-lg); font-size: 0.875rem; border-left: 4px solid var(--blue); pointer-events: auto; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
+@media (min-width: 768px) { .modal-overlay { align-items: center; } }
+.modal-sheet { background: var(--surface); width: 100%; max-width: 600px; max-height: 90dvh; border-radius: 1.5rem 1.5rem 0 0; overflow-y: auto; }
+@media (min-width: 768px) { .modal-sheet { border-radius: 1.5rem; margin: 20px; } }
+.modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+.modal-body { padding: 20px; }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 4px; }
+.field input, .field select, .field textarea { width: 100%; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 8px 12px; color: var(--text-primary); }
+.prio-btn { padding: 6px 12px; border-radius: 999px; background: var(--bg-tertiary); margin-right: 8px; }
+.prio-btn.active { background: var(--blue); color: white; }
+.fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 28px; background: var(--blue); color: white; font-size: 24px; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-lg); }
+.hidden { display: none; }
 </style>
 </head>
 <body>
-<div id="toast"></div>
 <div id="app"></div>
+<div id="toastContainer" class="toast-container"></div>
 <script>
-/* ══════════════════════════════════════════════
-   FIREBASE CONFIG — PARCEIROS LSA
-══════════════════════════════════════════════ */
-var firebaseConfig = {
+// Firebase Config
+const firebaseConfig = {
   apiKey: "AIzaSyDp-pkn5NBp8LRaR9n4r-sywoH9UMrLG-A",
   authDomain: "parceiroslsa.firebaseapp.com",
   projectId: "parceiroslsa",
@@ -180,508 +90,268 @@ var firebaseConfig = {
   messagingSenderId: "98070827490",
   appId: "1:98070827490:web:ed0cc0c91a2f659365a9bb"
 };
-
 firebase.initializeApp(firebaseConfig);
-var db = firebase.firestore();
+const db = firebase.firestore();
+const ADMIN_SENHA = '1234';
+const TIPOS = ['Aposentadoria por Invalidez','Auxílio-Doença','BPC/LOAS','Aposentadoria por Idade','Aposentadoria por Tempo de Contribuição','Pensão por Morte','Auxílio-Acidente','Revisão de Benefício','Outros'];
+const PPAD = ['Laudo médico','Receitas médicas','Comprovante de residência','RG / CPF','CTPS','Extrato do CNIS','Procuração','Documentos do INSS','Atestado médico','Exame complementar','Comprovante de renda','Certidão de nascimento'];
 
-// CORREÇÃO 1: Removido enablePersistence para evitar erro "failed-precondition"
-// A persistência offline causava conflitos com consultas sem índices.
-// Agora os dados são sempre buscados da rede, garantindo funcionamento imediato.
+let tela = 'login', indicadores = [], processos = [], indAtual = null, expCard = null, unsubInd = null, unsubProc = null, isAdmin = false;
+let filtroStatus = 'pendentes', searchTerm = '', ordenacao = 'data_asc';
+let fNome = '', fTipo = TIPOS[0], fPends = [], fObs = '', editId = null, delId = null, fPrioridade = 'media';
+let editIndId = null, delIndId = null;
 
-/* ══════════════════════════════════════════════
-   CONSTANTES E ADMIN
-══════════════════════════════════════════════ */
-var ADMIN_SENHA = '1234'; /* ← Altere para sua senha de administrador */
-var PPAD = ['Laudo médico','Receitas médicas','Comprovante de residência','RG / CPF','CTPS (Carteira de Trabalho)','Extrato do CNIS','Procuração assinada','Documentos do INSS','Atestado médico','Exame complementar','Comprovante de renda','Certidão de nascimento/casamento'];
-var TIPOS = ['Aposentadoria por Invalidez','Auxílio-Doença','BPC/LOAS','Aposentadoria por Idade','Aposentadoria por Tempo de Contribuição','Pensão por Morte','Auxílio-Acidente','Revisão de Benefício','Outros'];
-
-/* ══════════════════════════════════════════════
-   ESTADO GLOBAL
-══════════════════════════════════════════════ */
-var tela = 'login'; // login | adminAuth | admin | indicador
-var indicadores = [], processos = [];
-var indAtual = null;
-var expCard = null;
-var unsubInd = null, unsubProc = null;
-var isAdmin = false;
-
-/* form — processo */
-var fNome = '', fTipo = TIPOS[0], fPends = [], fObs = '', fCustom = '', editId = null, delId = null;
-/* form — indicador */
-var fIndNome = '', fIndPin = '', editIndId = null, delIndId = null;
-
-function ge(id){ return document.getElementById(id); }
-function ini(n){
-  if(!n) return '??';
-  var parts = n.trim().split(' ');
-  if(parts.length === 1) return parts[0].substring(0,2).toUpperCase();
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+function toggleTheme() {
+  document.body.classList.toggle('dark');
+  localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+}
+function loadTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') document.body.classList.add('dark');
+  else if (saved === 'light') document.body.classList.remove('dark');
+  else if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.body.classList.add('dark');
+}
+function ini(n) {
+  if (!n) return '??';
+  const parts = n.trim().split(' ');
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
-function fdt(ts){
-  if(!ts) return '—';
-  var d = ts.toDate ? ts.toDate() : new Date(ts);
-  return d.toLocaleDateString('pt-BR');
+function fdt(ts) {
+  return ts?.toDate ? ts.toDate().toLocaleDateString('pt-BR') : '—';
 }
-function resetF(){ fNome=''; fTipo=TIPOS[0]; fPends=[]; fObs=''; fCustom=''; editId=null; delId=null; }
-function resetFInd(){ fIndNome=''; fIndPin=''; editIndId=null; delIndId=null; }
-
-function showToast(msg, type){
-  var el = ge('toast');
-  if(!el) return;
-  el.textContent = msg;
-  if(type === 'err'){
-    el.style.background = 'rgba(240,112,87,.15)';
-    el.style.borderColor = 'rgba(240,112,87,.4)';
-    el.style.color = '#F07057';
-  } else {
-    el.style.background = 'rgba(79,142,247,.12)';
-    el.style.borderColor = 'rgba(79,142,247,.35)';
-    el.style.color = '#4F8EF7';
-  }
-  el.style.opacity = '1';
-  el.style.transform = 'translateX(-50%) translateY(0)';
-  clearTimeout(el._tid);
-  el._tid = setTimeout(function(){
-    el.style.opacity = '0';
-    el.style.transform = 'translateX(-50%) translateY(12px)';
-  }, 3000);
+function unsubAll() {
+  if (unsubInd) unsubInd();
+  if (unsubProc) unsubProc();
+  unsubInd = unsubProc = null;
 }
-
-function unsubAll(){
-  if(unsubInd){ unsubInd(); unsubInd = null; }
-  if(unsubProc){ unsubProc(); unsubProc = null; }
-}
-
-/* ══════════════════════════════════════════════
-   TELA DE LOGIN
-══════════════════════════════════════════════ */
-function renderLogin(){
-  unsubAll(); expCard = null;
-  ge('app').innerHTML = '<div id="loginScreen">'
-    + '<div class="login-logo">Parceiros LSA</div>'
-    + '<div class="login-sub">Painel de Processos</div>'
-    + '<div class="login-box">'
-    + '<label class="login-label">Seu código de acesso (PIN)</label>'
-    + '<input class="pin-input" id="pinInput" type="number" inputmode="numeric" placeholder="Digite seu PIN">'
-    + '<button class="btn-primary" id="btnPin">Entrar</button>'
-    + '<div class="login-error" id="loginErr"></div>'
-    + '<div class="divider">ou</div>'
-    + '<button class="btn-ghost-dark" id="btnAdmin">Acesso do Advogado</button>'
-    + '</div></div>';
-  ge('btnPin').addEventListener('click', doLogin);
-  ge('pinInput').addEventListener('keydown', function(e){ if(e.key === 'Enter') doLogin(); });
-  ge('btnAdmin').addEventListener('click', function(){ tela='adminAuth'; renderAdminAuth(); });
-}
-
-function doLogin(){
-  var pin = (ge('pinInput').value || '').trim();
-  if(!pin){ ge('loginErr').textContent = 'Digite seu PIN.'; return; }
-  if(pin === ADMIN_SENHA){ isAdmin = true; tela = 'admin'; renderAdmin(); return; }
-  var btn = ge('btnPin');
-  btn.disabled = true;
-  btn.textContent = 'Verificando…';
-  db.collection('indicadores').where('pin','==',pin).limit(1).get().then(function(snap){
-    if(snap.empty){
-      ge('loginErr').textContent = 'PIN inválido. Tente novamente.';
-      btn.disabled = false;
-      btn.textContent = 'Entrar';
-      return;
-    }
-    var doc = snap.docs[0];
-    indAtual = { id: doc.id, nome: doc.data().nome, pin: doc.data().pin };
-    isAdmin = false;
-    tela = 'indicador';
-    renderIndicador();
-  }).catch(function(){
-    ge('loginErr').textContent = 'Erro de conexão. Tente novamente.';
-    btn.disabled = false;
-    btn.textContent = 'Entrar';
-  });
-}
-
-function renderAdminAuth(){
-  ge('app').innerHTML = '<div id="loginScreen">'
-    + '<div class="login-logo">Advogado</div>'
-    + '<div class="login-sub">Área restrita</div>'
-    + '<div class="admin-auth-box">'
-    + '<input class="dark-input" id="adminPass" type="password" placeholder="Senha de administrador">'
-    + '<button class="btn-primary" id="btnAdminEnter">Entrar</button>'
-    + '<div class="login-error" id="adminErr"></div>'
-    + '<div style="margin-top:12px"><button class="btn-ghost-dark" id="btnBackLogin">Voltar</button></div>'
-    + '</div></div>';
-  function tryAdmin(){
-    var v = (ge('adminPass').value || '').trim();
-    if(v === ADMIN_SENHA){ isAdmin = true; tela = 'admin'; renderAdmin(); }
-    else { ge('adminErr').textContent = 'Senha incorreta.'; }
-  }
-  ge('btnAdminEnter').addEventListener('click', tryAdmin);
-  ge('adminPass').addEventListener('keydown', function(e){ if(e.key === 'Enter') tryAdmin(); });
-  ge('btnBackLogin').addEventListener('click', function(){ tela='login'; renderLogin(); });
-}
-
-/* ══════════════════════════════════════════════
-   PAINEL ADMIN (GERENCIAR INDICADORES)
-   CORREÇÃO 2: Removido orderBy da consulta para evitar erro de índice.
-   A ordenação é feita no front-end com sort.
-══════════════════════════════════════════════ */
-function renderAdmin(){
-  unsubAll(); expCard = null;
-  ge('app').innerHTML = '<div id="header">'
-    + '<div class="header-inner">'
-    + '<div><span class="brand-eyebrow">Advogado</span>'
-    + '<div class="brand-name">Painel Geral <div class="sync-dot" id="syncDot"></div></div></div>'
-    + '<button class="back-btn" id="btnLogout">Sair</button>'
-    + '</div>'
-    + '<div id="connecting"><div class="ring"></div>Carregando indicadores…</div>'
-    + '<div class="tabs" id="tabs" style="display:none"></div>'
-    + '</div>'
-    + '<div id="list"><div class="skel"><div class="skel-av"></div><div class="skel-info"><div class="skel-line wide"></div><div class="skel-line short"></div></div></div></div>'
-    + '<button id="fab">＋</button>'
-    + '<div id="mOverlay" style="display:none"></div>'
-    + '<div id="dOverlay" style="display:none"></div>';
-  ge('btnLogout').addEventListener('click', function(){ isAdmin=false; tela='login'; renderLogin(); });
-  ge('fab').addEventListener('click', function(){ resetFInd(); openIndModal(); });
-  // Removido .orderBy('nome','asc') - agora ordenamos no front
-  unsubInd = db.collection('indicadores').onSnapshot(function(snap){
-    indicadores = [];
-    snap.forEach(function(d){ indicadores.push(Object.assign({id:d.id}, d.data())); });
-    // Ordenação manual por nome
-    indicadores.sort(function(a,b){ return (a.nome || '').localeCompare(b.nome || ''); });
-    if(ge('connecting')) ge('connecting').style.display = 'none';
-    if(ge('tabs')){ ge('tabs').style.display = 'flex'; ge('tabs').innerHTML = '<div class="tab"><span class="num">'+indicadores.length+'</span><span class="lbl">Indicadores cadastrados</span></div>'; }
-    if(ge('syncDot')) ge('syncDot').classList.add('live');
+function render() {
+  const app = document.getElementById('app');
+  if (tela === 'login') {
+    app.innerHTML = `<div class="container" style="max-width:400px;margin:40px auto"><div class="logo"><h1>Parceiros LSA</h1></div><div style="margin-top:32px"><input id="pinInput" type="number" placeholder="Digite seu PIN" style="width:100%;padding:12px;margin-bottom:12px"><button id="btnPin" class="filter-btn active" style="width:100%">Entrar</button><button id="btnAdmin" class="filter-btn" style="width:100%;margin-top:8px">Acesso do Advogado</button><div id="loginErr" style="color:var(--red);margin-top:8px"></div></div></div>`;
+    document.getElementById('btnPin').onclick = () => {
+      const pin = document.getElementById('pinInput').value.trim();
+      if (pin === ADMIN_SENHA) {
+        isAdmin = true;
+        tela = 'admin';
+        render();
+      } else {
+        db.collection('indicadores').where('pin', '==', pin).limit(1).get().then(snap => {
+          if (snap.empty) document.getElementById('loginErr').innerText = 'PIN inválido';
+          else {
+            indAtual = { id: snap.docs[0].id, ...snap.docs[0].data() };
+            isAdmin = false;
+            tela = 'indicador';
+            render();
+          }
+        });
+      }
+    };
+    document.getElementById('btnAdmin').onclick = () => { tela = 'adminAuth'; render(); };
+  } else if (tela === 'adminAuth') {
+    app.innerHTML = `<div class="container" style="max-width:400px;margin:40px auto"><div class="logo"><h1>Acesso Advogado</h1></div><div style="margin-top:32px"><input id="adminPass" type="password" placeholder="Senha" style="width:100%;padding:12px"><button id="btnAdminEnter" class="filter-btn active" style="width:100%;margin-top:12px">Entrar</button><button id="btnBack" class="filter-btn" style="width:100%;margin-top:8px">Voltar</button><div id="adminErr" style="color:var(--red)"></div></div></div>`;
+    document.getElementById('btnAdminEnter').onclick = () => {
+      if (document.getElementById('adminPass').value === ADMIN_SENHA) {
+        isAdmin = true;
+        tela = 'admin';
+        render();
+      } else document.getElementById('adminErr').innerText = 'Senha incorreta';
+    };
+    document.getElementById('btnBack').onclick = () => { tela = 'login'; render(); };
+  } else if (tela === 'admin') {
+    unsubAll();
+    unsubInd = db.collection('indicadores').onSnapshot(snap => {
+      indicadores = [];
+      snap.forEach(d => indicadores.push({ id: d.id, ...d.data() }));
+      renderAdminList();
+    });
     renderAdminList();
-  }, function(err){ console.error(err); if(ge('connecting')) ge('connecting').innerHTML = '<span style="color:#F07057;font-size:11px">Erro ao conectar</span>'; });
-}
-
-function renderAdminList(){
-  var el = ge('list'); if(!el) return;
-  if(!indicadores.length){
-    el.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Nenhum indicador cadastrado</div><div class="empty-sub">Toque em + para adicionar.</div></div>';
-    return;
+  } else if (tela === 'indicador') {
+    unsubAll();
+    unsubProc = db.collection('processos').where('indicadorId', '==', indAtual.id).onSnapshot(snap => {
+      processos = [];
+      snap.forEach(d => processos.push({ id: d.id, ...d.data() }));
+      renderIndicadorList();
+    });
+    renderIndicadorList();
   }
-  var html = '';
-  indicadores.forEach(function(ind,i){
-    html += '<div class="ind-card" style="animation-delay:'+i*.04+'s">'
-      + '<div class="ind-head" data-id="'+ind.id+'">'
-      + '<div class="ind-avatar">'+ini(ind.nome)+'</div>'
-      + '<div class="ind-info"><div class="ind-name">'+ind.nome+'</div><div class="ind-pin">PIN: '+ind.pin+'</div></div>'
-      + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
-      + '<button class="abtn abtn-ghost edit-ind" data-id="'+ind.id+'" style="padding:7px 12px;font-size:11px">✏ Editar</button>'
-      + '<button class="abtn abtn-danger del-ind" data-id="'+ind.id+'" style="padding:7px 12px;font-size:11px;margin-left:0">🗑</button>'
-      + '</div>'
-      + '<span class="arr">›</span>'
-      + '</div></div>';
-  });
-  el.innerHTML = html;
-  el.querySelectorAll('.ind-head').forEach(function(h){
-    h.addEventListener('click', function(e){
-      if(e.target.classList.contains('edit-ind') || e.target.classList.contains('del-ind')) return;
-      var ind = indicadores.find(function(x){ return x.id === h.dataset.id; });
-      if(!ind) return;
-      indAtual = ind; tela = 'indicador'; renderIndicador();
+}
+function renderAdminList() {
+  const app = document.getElementById('app');
+  let html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Painel Administrativo</h1></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" onclick="tela='login';render()">Sair</button></div></div></div><div class="container"><div class="dashboard-grid"><div class="stat-card"><div class="stat-title">Indicadores</div><div class="stat-value">${indicadores.length}</div></div><div class="stat-card"><div class="stat-title">Processos Pendentes</div><div class="stat-value">${processos.filter(p => p.pends?.length).length}</div></div></div><div class="filters-bar"><input type="text" id="searchInput" class="search-input" placeholder="Buscar indicador..."><button class="fab" onclick="openIndModal()">+</button></div><div id="indicadoresList"></div></div>`;
+  app.innerHTML = html;
+  const container = document.getElementById('indicadoresList');
+  if (!indicadores.length) container.innerHTML = '<div class="stat-card">Nenhum indicador cadastrado. Clique em + para adicionar.</div>';
+  else {
+    let listHtml = '';
+    indicadores.forEach(ind => {
+      listHtml += `<div class="process-card"><div class="card-header" onclick="selecionarIndicador('${ind.id}')"><div class="avatar">${ini(ind.nome)}</div><div class="card-info"><div class="card-title">${ind.nome}</div><div class="card-subtitle">PIN: ${ind.pin}</div></div><div><button class="filter-btn" onclick="event.stopPropagation();editInd('${ind.id}')">✏️</button><button class="filter-btn" style="background:var(--red-bg);color:var(--red)" onclick="event.stopPropagation();delInd('${ind.id}')">🗑️</button></div></div></div>`;
+    });
+    container.innerHTML = listHtml;
+  }
+  document.getElementById('searchInput')?.addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    document.querySelectorAll('#indicadoresList .process-card').forEach(card => {
+      const nome = card.querySelector('.card-title')?.innerText.toLowerCase();
+      card.style.display = nome?.includes(term) ? '' : 'none';
     });
   });
-  el.querySelectorAll('.edit-ind').forEach(function(b){
-    b.addEventListener('click', function(e){
-      e.stopPropagation();
-      var ind = indicadores.find(function(x){ return x.id === b.dataset.id; });
-      if(!ind) return;
-      fIndNome = ind.nome; fIndPin = ind.pin; editIndId = ind.id; openIndModal();
-    });
-  });
-  el.querySelectorAll('.del-ind').forEach(function(b){
-    b.addEventListener('click', function(e){ e.stopPropagation(); delIndId = b.dataset.id; openDelIndModal(); });
-  });
 }
-
-function openIndModal(){
-  var ov = ge('mOverlay'); ov.style.display = 'flex'; ov.className = 'overlay';
-  ov.innerHTML = '<div class="sheet"><div class="sheet-handle"></div>'
-    + '<div class="sheet-title">'+(editIndId ? 'Editar Indicador' : 'Novo Indicador')+'</div>'
-    + '<div class="field"><label class="field-lbl">Nome completo</label>'
-    + '<input id="fIndNome" value="'+fIndNome.replace(/"/g,'&quot;')+'" placeholder="Nome do indicador..." autocomplete="off"></div>'
-    + '<div class="field"><label class="field-lbl">PIN de acesso</label>'
-    + '<input id="fIndPin" type="number" inputmode="numeric" value="'+fIndPin+'" placeholder="Ex: 4521"></div>'
-    + '<div class="sfooter"><button class="sbtn-cancel" id="mcancel">Cancelar</button>'
-    + '<button class="sbtn-save" id="msave">'+(editIndId ? 'Salvar' : 'Cadastrar')+'</button></div></div>';
-  ov.addEventListener('click', function(e){ if(e.target === ov) closeIndModal(); });
-  ge('mcancel').addEventListener('click', closeIndModal);
-  ge('msave').addEventListener('click', salvarInd);
+function renderIndicadorList() {
+  const app = document.getElementById('app');
+  const pendentes = processos.filter(p => p.pends?.length > 0);
+  let list = filtroStatus === 'todos' ? processos : pendentes;
+  if (ordenacao === 'data_asc') list.sort((a,b) => (a.data?.toDate?.()||0) - (b.data?.toDate?.()||0));
+  else list.sort((a,b) => (b.data?.toDate?.()||0) - (a.data?.toDate?.()||0));
+  let html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>${indAtual.nome}</h1></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" onclick="tela='admin';render()">Voltar</button></div></div></div><div class="container"><div class="dashboard-grid"><div class="stat-card"><div class="stat-title">Processos Pendentes</div><div class="stat-value">${pendentes.length}</div></div></div><div class="filters-bar"><select id="sortSelect" class="sort-select"><option value="data_asc" ${ordenacao==='data_asc'?'selected':''}>Mais antigos primeiro</option><option value="data_desc" ${ordenacao==='data_desc'?'selected':''}>Mais recentes primeiro</option></select><button class="filter-btn ${filtroStatus === 'pendentes' ? 'active' : ''}" onclick="filtroStatus='pendentes';renderIndicadorList()">Pendentes</button><button class="filter-btn ${filtroStatus === 'todos' ? 'active' : ''}" onclick="filtroStatus='todos';renderIndicadorList()">Todos</button></div><div id="processosList"></div>${isAdmin ? '<button class="fab" onclick="openProcModal()">+</button>' : ''}</div>`;
+  app.innerHTML = html;
+  let listHtml = '';
+  list.forEach(proc => {
+    const totalPends = proc.pends?.length || 0;
+    const progresso = 0;
+    let badgeClass = 'badge-medium';
+    const prioridade = proc.prioridade || 'media';
+    if (prioridade === 'alta') badgeClass = 'badge-high';
+    else if (prioridade === 'baixa') badgeClass = 'badge-low';
+    listHtml += `<div class="process-card"><div class="card-header" onclick="expCard='${expCard === proc.id ? '' : proc.id}';renderIndicadorList()"><div class="avatar">${ini(proc.nome)}</div><div class="card-info"><div class="card-title">${proc.nome}</div><div class="card-subtitle">${proc.tipo}</div><div class="progress-bar"><div class="progress-fill" style="width:${progresso}%"></div></div></div><div class="badge-priority ${badgeClass}">${prioridade === 'alta' ? 'Urgente' : prioridade === 'baixa' ? 'Baixa' : 'Média'}</div><span class="expand-icon ${expCard === proc.id ? 'open' : ''}">▼</span></div>${expCard === proc.id ? `<div class="card-body"><div class="card-subtitle">Pendências:</div><div class="pend-chips">${(proc.pends || []).map(p => `<span class="filter-btn" style="background:var(--red-bg);color:var(--red);margin:4px">${p}</span>`).join('')}</div>${proc.obs ? `<div><strong>Obs:</strong> ${proc.obs}</div>` : ''}${isAdmin ? `<div style="margin-top:12px"><button class="filter-btn" onclick="editProc('${proc.id}')">✏️ Editar</button><button class="filter-btn" style="background:var(--red-bg);color:var(--red)" onclick="delProc('${proc.id}')">🗑️ Remover</button><button class="filter-btn active" onclick="marcarOK('${proc.id}')">✓ Marcar OK</button></div>` : ''}</div>` : ''}</div>`;
+  });
+  document.getElementById('processosList').innerHTML = listHtml || '<div class="stat-card">Nenhum processo com pendências.</div>';
+  document.getElementById('sortSelect').onchange = (e) => { ordenacao = e.target.value; renderIndicadorList(); };
 }
-function closeIndModal(){ var ov = ge('mOverlay'); ov.style.display = 'none'; ov.innerHTML = ''; resetFInd(); }
-function salvarInd(){
-  var n = (ge('fIndNome') ? ge('fIndNome').value : '').trim();
-  var p = (ge('fIndPin') ? ge('fIndPin').value : '').trim();
-  if(!n || !p){ showToast('Preencha nome e PIN.', 'err'); return; }
-  if(p === ADMIN_SENHA){ showToast('PIN não pode ser igual à senha do advogado.', 'err'); return; }
-  var ms = ge('msave'); if(ms) ms.disabled = true;
-  var save = function(){
-    var payload = { nome: n, pin: p };
-    if(editIndId){
-      db.collection('indicadores').doc(editIndId).update(payload)
-        .then(function(){ showToast('✓ Indicador atualizado'); closeIndModal(); })
-        .catch(function(){ showToast('Erro ao salvar.', 'err'); if(ms) ms.disabled = false; });
+window.selecionarIndicador = (id) => {
+  indAtual = indicadores.find(i => i.id === id);
+  tela = 'indicador';
+  render();
+};
+window.editInd = (id) => {
+  const ind = indicadores.find(i => i.id === id);
+  if (ind) {
+    editIndId = id;
+    fIndNome = ind.nome;
+    fIndPin = ind.pin;
+    openIndModal();
+  }
+};
+window.delInd = (id) => {
+  if (confirm('Remover indicador e todos os processos?')) {
+    db.collection('processos').where('indicadorId', '==', id).get().then(snap => {
+      const batch = db.batch();
+      snap.forEach(d => batch.delete(d.ref));
+      batch.delete(db.collection('indicadores').doc(id));
+      return batch.commit();
+    }).then(() => showToast('Removido')).catch(e => showToast('Erro', 'error'));
+  }
+};
+function openIndModal() {
+  const nome = prompt('Nome do indicador:', fIndNome || '');
+  const pin = prompt('PIN (4 dígitos):', fIndPin || '');
+  if (nome && pin) {
+    if (editIndId) {
+      db.collection('indicadores').doc(editIndId).update({ nome, pin }).then(() => {
+        showToast('Atualizado');
+        editIndId = null;
+        render();
+      });
     } else {
-      payload.criadoEm = firebase.firestore.FieldValue.serverTimestamp();
-      db.collection('indicadores').add(payload)
-        .then(function(){ showToast('✓ Indicador cadastrado'); closeIndModal(); })
-        .catch(function(){ showToast('Erro ao salvar.', 'err'); if(ms) ms.disabled = false; });
+      db.collection('indicadores').add({ nome, pin, criadoEm: firebase.firestore.FieldValue.serverTimestamp() }).then(() => showToast('Cadastrado'));
+    }
+  }
+}
+window.openProcModal = () => {
+  fNome = '';
+  fTipo = TIPOS[0];
+  fPends = [];
+  fObs = '';
+  editId = null;
+  fPrioridade = 'media';
+  const modalHtml = `<div class="modal-overlay" id="procModal"><div class="modal-sheet"><div class="modal-header"><h3>${editId ? 'Editar Processo' : 'Novo Processo'}</h3><button onclick="closeProcModal()">✖️</button></div><div class="modal-body"><div class="field"><label>Nome do cliente</label><input id="procNome" value="${fNome}"></div><div class="field"><label>Tipo</label><select id="procTipo">${TIPOS.map(t => `<option ${t === fTipo ? 'selected' : ''}>${t}</option>`).join('')}</select></div><div class="field"><label>Pendências</label><div id="pendList"></div><div style="display:flex;gap:8px;margin-top:8px"><input id="customPend" placeholder="Personalizada" style="flex:1"><button class="filter-btn" onclick="addCustomPend()">+</button></div></div><div class="field"><label>Observações</label><textarea id="procObs">${fObs}</textarea></div><div class="field"><label>Prioridade</label><div><button class="prio-btn ${fPrioridade === 'alta' ? 'active' : ''}" onclick="setPrio('alta')">Alta</button><button class="prio-btn ${fPrioridade === 'media' ? 'active' : ''}" onclick="setPrio('media')">Média</button><button class="prio-btn ${fPrioridade === 'baixa' ? 'active' : ''}" onclick="setPrio('baixa')">Baixa</button></div></div><button class="filter-btn active" onclick="saveProc()">Salvar</button></div></div></div>`;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+  renderPendList();
+  window.setPrio = (p) => {
+    fPrioridade = p;
+    document.querySelectorAll('.prio-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+  };
+  window.addCustomPend = () => {
+    const val = document.getElementById('customPend').value.trim();
+    if (val && !fPends.includes(val)) {
+      fPends.push(val);
+      renderPendList();
+      document.getElementById('customPend').value = '';
     }
   };
-  if(!editIndId){
-    db.collection('indicadores').where('pin','==',p).get().then(function(snap){
-      if(!snap.empty){ showToast('Esse PIN já está em uso.', 'err'); if(ms) ms.disabled = false; return; }
-      save();
-    }).catch(function(){ showToast('Erro de conexão.', 'err'); if(ms) ms.disabled = false; });
-  } else { save(); }
-}
-function openDelIndModal(){
-  var ov = ge('dOverlay'); ov.style.display = 'flex'; ov.className = 'overlay';
-  ov.innerHTML = '<div class="del-sheet"><div class="sheet-handle"></div><div class="del-icon">🗑</div>'
-    + '<div class="del-title">Remover indicador?</div>'
-    + '<div class="del-sub">Todos os processos vinculados também serão removidos. Esta ação não pode ser desfeita.</div>'
-    + '<div class="del-footer"><button class="sbtn-cancel" id="dcancel">Cancelar</button><button class="sbtn-delconf" id="dconfirm">Sim, remover</button></div></div>';
-  ov.addEventListener('click', function(e){ if(e.target === ov) closeDelIndModal(); });
-  ge('dcancel').addEventListener('click', closeDelIndModal);
-  ge('dconfirm').addEventListener('click', function(){
-    db.collection('processos').where('indicadorId','==',delIndId).get().then(function(snap){
-      var batch = db.batch();
-      snap.forEach(function(d){ batch.delete(d.ref); });
-      batch.delete(db.collection('indicadores').doc(delIndId));
-      return batch.commit();
-    }).then(function(){ showToast('Indicador removido.'); closeDelIndModal(); })
-    .catch(function(){ showToast('Erro ao remover.', 'err'); closeDelIndModal(); });
-  });
-}
-function closeDelIndModal(){ var ov = ge('dOverlay'); ov.style.display = 'none'; ov.innerHTML = ''; delIndId = null; }
-
-/* ══════════════════════════════════════════════
-   PAINEL DO INDICADOR (PROCESSOS)
-   CORREÇÃO 2 (continuação): removido orderBy('data','asc')
-   Ordenação manual por timestamp (data)
-   CORREÇÃO 3: Garantir que pendências adicionadas apareçam imediatamente
-   (o snapshot já atualiza, mas agora sem erro de índice)
-══════════════════════════════════════════════ */
-function renderIndicador(){
-  if(unsubProc){ unsubProc(); unsubProc = null; }
-  expCard = null;
-  ge('app').innerHTML = '<div id="header">'
-    + '<div class="header-inner">'
-    + '<div><span class="brand-eyebrow">Parceiros LSA</span>'
-    + '<div class="brand-name">'+ (indAtual.nome || 'Indicador') +' <div class="sync-dot" id="syncDot"></div></div></div>'
-    + '<button class="back-btn" id="btnVoltar">'+(isAdmin ? 'Voltar' : 'Sair')+'</button>'
-    + '</div>'
-    + '<div id="connecting"><div class="ring"></div>Conectando processos…</div>'
-    + '<div class="tabs" id="tabs" style="display:none"></div>'
-    + '</div>'
-    + '<div id="list"><div class="skel"><div class="skel-av"></div><div class="skel-info"><div class="skel-line wide"></div><div class="skel-line short"></div></div></div></div>'
-    + '<button id="fab"'+(isAdmin ? '' : ' class="hidden"')+'>＋</button>'
-    + '<div id="mOverlay" style="display:none"></div>'
-    + '<div id="dOverlay" style="display:none"></div>';
-  ge('btnVoltar').addEventListener('click', function(){
-    if(unsubProc){ unsubProc(); unsubProc = null; }
-    if(isAdmin){ tela='admin'; renderAdmin(); } else { indAtual=null; tela='login'; renderLogin(); }
-  });
-  if(isAdmin){ ge('fab').addEventListener('click', function(){ resetF(); openProcModal(); }); }
-  // Consulta sem orderBy para evitar índice
-  unsubProc = db.collection('processos')
-    .where('indicadorId','==',indAtual.id)
-    .onSnapshot(function(snap){
-      processos = [];
-      snap.forEach(function(d){ 
-        var data = d.data();
-        processos.push(Object.assign({id:d.id}, data)); 
+  window.saveProc = () => {
+    const nome = document.getElementById('procNome').value.trim();
+    const tipo = document.getElementById('procTipo').value;
+    const obs = document.getElementById('procObs').value;
+    if (!nome) return showToast('Nome obrigatório', 'error');
+    const data = {
+      indicadorId: indAtual.id,
+      nome,
+      tipo,
+      pends: fPends,
+      obs,
+      prioridade: fPrioridade,
+      data: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    if (editId) {
+      db.collection('processos').doc(editId).update(data).then(() => {
+        showToast('Atualizado');
+        closeProcModal();
+        render();
       });
-      // Ordenação manual por data (timestamp) - mais recentes primeiro? Vamos usar crescente (mais antigos primeiro) como era antes
-      processos.sort(function(a,b){
-        var ta = a.data ? (a.data.toDate ? a.data.toDate().getTime() : new Date(a.data).getTime()) : 0;
-        var tb = b.data ? (b.data.toDate ? b.data.toDate().getTime() : new Date(b.data).getTime()) : 0;
-        return ta - tb;
+    } else {
+      db.collection('processos').add(data).then(() => {
+        showToast('Cadastrado');
+        closeProcModal();
+        render();
       });
-      if(ge('connecting')) ge('connecting').style.display = 'none';
-      if(ge('syncDot')) ge('syncDot').classList.add('live');
-      renderProcTabs(); renderProcList();
-    }, function(err){ console.error(err); if(ge('connecting')) ge('connecting').innerHTML = '<span style="color:#F07057;font-size:11px">Erro: '+err.code+'</span>'; });
-}
-
-function renderProcTabs(){
-  if(!ge('tabs')) return;
-  var pdC = processos.filter(function(c){ return c.pends && c.pends.length > 0; }).length;
-  ge('tabs').style.display = 'flex';
-  ge('tabs').innerHTML = '<div class="tab"><span class="num">'+pdC+'</span><span class="lbl">Pendentes</span></div>';
-}
-
-function renderProcList(){
-  var el = ge('list'); if(!el) return;
-  var list = processos.filter(function(c){ return c.pends && c.pends.length > 0; });
-  if(!list.length){
-    el.innerHTML = '<div class="empty"><div class="empty-icon">⚖️</div>'
-      + '<div class="empty-title">Acompanhe as pendências do seu processo aqui</div></div>';
-    return;
-  }
-  var html = '';
-  list.forEach(function(c,i){
-    var ab = (expCard === c.id);
-    var body = '';
-    if(ab){
-      body += '<div class="card-body"><div class="card-date">Cadastrado em '+fdt(c.data)+'</div>';
-      body += '<div class="sec-label">Pendências'+(isAdmin ? ' — toque para sanar' : '')+'</div><div class="pend-chips">';
-      (c.pends || []).forEach(function(p){
-        var safe = p.replace(/"/g,'&quot;');
-        if(!isAdmin){ body += '<div class="pchip ro">'+p+'</div>'; }
-        else{ body += '<div class="pchip" data-id="'+c.id+'" data-p="'+safe+'"><span class="cx">✕</span>'+p+'</div>'; }
-      });
-      body += '</div>';
-      if(isAdmin) body += '<div class="pend-hint">Toque em uma pendência para marcá-la como sanada</div>';
-      if(c.obs) body += '<div class="obs-box"><div class="obs-lbl">Observações</div><div class="obs-txt">'+c.obs+'</div></div>';
-      if(isAdmin){
-        body += '<div class="actions">'
-          + '<button class="abtn abtn-ghost bedit" data-id="'+c.id+'">✏ Editar</button>'
-          + '<button class="abtn abtn-blue bok" data-id="'+c.id+'">✓ Marcar OK</button>'
-          + '<button class="abtn abtn-danger bdel" data-id="'+c.id+'">Remover</button>'
-          + '</div>';
-      }
-      body += '</div>';
     }
-    html += '<div class="card pend" style="animation-delay:'+i*.04+'s">'
-      + '<div class="card-head" data-id="'+c.id+'">'
-      + '<div class="avatar pend">'+ini(c.nome)+'</div>'
-      + '<div class="card-info"><div class="card-name">'+c.nome+'</div><div class="card-tipo">'+c.tipo+'</div></div>'
-      + '<div class="card-right"><div class="badge pend"><span class="badge-dot"></span>Pendente</div>'
-      + '<div class="pend-count">'+(c.pends ? c.pends.length : 0)+' pendência'+(c.pends && c.pends.length>1 ? 's':'')+'</div></div>'
-      + '<span class="chevron'+(ab ? ' open' : '')+'">⌄</span>'
-      + '</div>'+body+'</div>';
-  });
-  el.innerHTML = html;
-  el.querySelectorAll('.card-head').forEach(function(h){
-    h.addEventListener('click', function(){ expCard = (expCard === h.dataset.id) ? null : h.dataset.id; renderProcList(); });
-  });
-  if(isAdmin){
-    el.querySelectorAll('.pchip:not(.ro)').forEach(function(ch){
-      ch.addEventListener('click', function(e){
-        e.stopPropagation();
-        var c = processos.find(function(x){ return x.id === ch.dataset.id; }); if(!c) return;
-        var novos = (c.pends || []).filter(function(p){ return p !== ch.dataset.p; });
-        db.collection('processos').doc(ch.dataset.id).update({pends: novos}).catch(function(){ showToast('Erro.','err'); });
-      });
-    });
-    el.querySelectorAll('.bedit').forEach(function(b){
-      b.addEventListener('click', function(e){
-        e.stopPropagation();
-        var c = processos.find(function(x){ return x.id === b.dataset.id; }); if(!c) return;
-        fNome = c.nome; fTipo = c.tipo; fPends = (c.pends || []).slice(); fObs = c.obs || ''; fCustom = ''; editId = c.id; openProcModal();
-      });
-    });
-    el.querySelectorAll('.bok').forEach(function(b){
-      b.addEventListener('click', function(e){
-        e.stopPropagation();
-        db.collection('processos').doc(b.dataset.id).update({pends: []})
-          .then(function(){ showToast('🎉 Processo OK!'); }).catch(function(){ showToast('Erro.','err'); });
-      });
-    });
-    el.querySelectorAll('.bdel').forEach(function(b){
-      b.addEventListener('click', function(e){ e.stopPropagation(); delId = b.dataset.id; openDelProcModal(); });
-    });
+  };
+  window.closeProcModal = () => document.getElementById('procModal')?.remove();
+};
+function renderPendList() {
+  const div = document.getElementById('pendList');
+  if (div) {
+    div.innerHTML = PPAD.map(p => `<button class="filter-btn" style="margin:4px;background:${fPends.includes(p) ? 'var(--blue)' : 'var(--bg-tertiary)'};color:${fPends.includes(p) ? 'white' : 'var(--text-primary)'}" onclick="togglePend('${p}')">${p}</button>`).join('');
   }
 }
-
-/* modais processo (sem alterações significativas, apenas robustez) */
-function procFormHTML(){
-  var togsHTML = '';
-  PPAD.forEach(function(p){ var on = fPends.indexOf(p) >= 0 ? ' on' : ''; togsHTML += '<button class="ptog'+on+'" data-p="'+p.replace(/"/g,'&quot;')+'">'+p+'</button>'; });
-  var extras = fPends.filter(function(p){ return PPAD.indexOf(p) < 0; });
-  var cchips = '';
-  if(extras.length){
-    cchips = '<div class="cchips">';
-    extras.forEach(function(p){ cchips += '<span class="cchip">'+p+'<span class="rm" data-p="'+p.replace(/"/g,'&quot;')+'">×</span></span>'; });
-    cchips += '</div>';
+window.togglePend = (p) => {
+  const idx = fPends.indexOf(p);
+  if (idx >= 0) fPends.splice(idx, 1);
+  else fPends.push(p);
+  renderPendList();
+};
+window.editProc = (id) => {
+  const proc = processos.find(p => p.id === id);
+  if (proc) {
+    editId = id;
+    fNome = proc.nome;
+    fTipo = proc.tipo;
+    fPends = proc.pends || [];
+    fObs = proc.obs || '';
+    fPrioridade = proc.prioridade || 'media';
+    openProcModal();
   }
-  var tiposHTML = ''; TIPOS.forEach(function(t){ tiposHTML += '<option'+(t===fTipo ? ' selected' : '')+'>'+t+'</option>'; });
-  return '<div class="sheet"><div class="sheet-handle"></div>'
-    + '<div class="sheet-title">'+(editId ? 'Editar Processo' : 'Novo Processo')+'</div>'
-    + '<div class="field"><label class="field-lbl">Nome do cliente</label><input id="fNome" value="'+fNome.replace(/"/g,'&quot;')+'" placeholder="Nome completo..." autocomplete="off"></div>'
-    + '<div class="field"><label class="field-lbl">Tipo do processo</label><select id="fTipo">'+tiposHTML+'</select></div>'
-    + '<div class="field"><label class="field-lbl">Pendências</label><div class="ptog-grid">'+togsHTML+'</div>'
-    + '<div class="custom-row"><input id="fCustom" value="'+fCustom.replace(/"/g,'&quot;')+'" placeholder="Pendência personalizada…"><button id="addCust">+ Add</button></div>'
-    + cchips+'</div>'
-    + '<div class="field"><label class="field-lbl">Observações</label><textarea id="fObs" placeholder="Anotações internas…">'+fObs+'</textarea></div>'
-    + '<div class="sfooter"><button class="sbtn-cancel" id="mcancel">Cancelar</button><button class="sbtn-save" id="msave">'+(editId ? 'Salvar Alterações' : 'Cadastrar')+'</button></div></div>';
-}
-function bindProcForm(){
-  var mc = ge('mcancel'); if(mc) mc.addEventListener('click', closeProcModal);
-  var ms = ge('msave'); if(ms) ms.addEventListener('click', salvarProc);
-  var fc = ge('fCustom'); if(fc) fc.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); addProcCustom(); } });
-  var ac = ge('addCust'); if(ac) ac.addEventListener('click', addProcCustom);
-  document.querySelectorAll('.ptog').forEach(function(b){
-    b.addEventListener('click', function(){
-      var p = b.dataset.p, i = fPends.indexOf(p);
-      if(i >= 0) fPends.splice(i,1); else fPends.push(p);
-      b.classList.toggle('on', fPends.indexOf(p) >= 0);
-    });
-  });
-  document.querySelectorAll('.rm').forEach(function(s){
-    s.addEventListener('click', function(e){
-      e.stopPropagation();
-      if(ge('fNome')) fNome = ge('fNome').value;
-      if(ge('fTipo')) fTipo = ge('fTipo').value;
-      if(ge('fObs')) fObs = ge('fObs').value;
-      fPends = fPends.filter(function(p){ return p !== s.dataset.p; });
-      ge('mOverlay').innerHTML = procFormHTML(); bindProcForm();
-    });
-  });
-}
-function addProcCustom(){
-  var inp = ge('fCustom'); if(!inp) return;
-  var t = inp.value.trim();
-  if(t && fPends.indexOf(t) < 0){
-    if(ge('fNome')) fNome = ge('fNome').value;
-    if(ge('fTipo')) fTipo = ge('fTipo').value;
-    if(ge('fObs')) fObs = ge('fObs').value;
-    fPends.push(t); fCustom = '';
-    ge('mOverlay').innerHTML = procFormHTML(); bindProcForm();
+};
+window.delProc = (id) => {
+  if (confirm('Remover processo?')) {
+    db.collection('processos').doc(id).delete().then(() => showToast('Removido')).catch(e => showToast('Erro', 'error'));
   }
-}
-function openProcModal(){
-  var ov = ge('mOverlay'); ov.style.display = 'flex'; ov.className = 'overlay';
-  ov.innerHTML = procFormHTML();
-  ov.addEventListener('click', function(e){ if(e.target === ov) closeProcModal(); });
-  bindProcForm();
-}
-function closeProcModal(){ var ov = ge('mOverlay'); ov.style.display = 'none'; ov.innerHTML = ''; resetF(); }
-function salvarProc(){
-  var n = (ge('fNome') ? ge('fNome').value : fNome).trim();
-  var t = ge('fTipo') ? ge('fTipo').value : fTipo;
-  var o = ge('fObs') ? ge('fObs').value : fObs;
-  if(!n){ showToast('Informe o nome do cliente.', 'err'); return; }
-  var ms = ge('msave'); if(ms) ms.disabled = true;
-  if(editId){
-    db.collection('processos').doc(editId).update({nome:n, tipo:t, pends:fPends.slice(), obs:o})
-      .then(function(){ showToast('✓ Atualizado'); closeProcModal(); })
-      .catch(function(){ showToast('Erro ao salvar.', 'err'); if(ms) ms.disabled = false; });
-  } else {
-    db.collection('processos').add({indicadorId:indAtual.id, nome:n, tipo:t, pends:fPends.slice(), obs:o, data:firebase.firestore.FieldValue.serverTimestamp()})
-      .then(function(){ showToast('✓ Cadastrado'); closeProcModal(); })
-      .catch(function(){ showToast('Erro ao salvar.', 'err'); if(ms) ms.disabled = false; });
-  }
-}
-function openDelProcModal(){
-  var ov = ge('dOverlay'); ov.style.display = 'flex'; ov.className = 'overlay';
-  ov.innerHTML = '<div class="del-sheet"><div class="sheet-handle"></div><div class="del-icon">🗑</div>'
-    + '<div class="del-title">Remover processo?</div><div class="del-sub">Esta ação não pode ser desfeita.</div>'
-    + '<div class="del-footer"><button class="sbtn-cancel" id="dcancel">Cancelar</button><button class="sbtn-delconf" id="dconfirm">Sim, remover</button></div></div>';
-  ov.addEventListener('click', function(e){ if(e.target === ov) closeDelProcModal(); });
-  ge('dcancel').addEventListener('click', closeDelProcModal);
-  ge('dconfirm').addEventListener('click', function(){
-    db.collection('processos').doc(delId).delete()
-      .then(function(){ showToast('Processo removido.'); }).catch(function(){ showToast('Erro.','err'); });
-    closeDelProcModal();
-  });
-}
-function closeDelProcModal(){ var ov = ge('dOverlay'); ov.style.display = 'none'; ov.innerHTML = ''; delId = null; }
-
-/* ── INICIAR APLICAÇÃO ── */
-renderLogin();
+};
+window.marcarOK = (id) => {
+  db.collection('processos').doc(id).update({ pends: [] }).then(() => showToast('Processo OK!')).catch(e => showToast('Erro', 'error'));
+};
+loadTheme();
+render();
 </script>
 </body>
 </html>
