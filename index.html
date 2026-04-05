@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
 <title>Meu controle de processos</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -51,6 +51,7 @@ body {
   color: var(--text-primary);
   transition: background 0.2s, color 0.2s;
   line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button {
@@ -59,8 +60,10 @@ button {
   background: none;
   font-family: inherit;
   transition: all 0.2s ease;
+  touch-action: manipulation;
 }
 
+/* Header */
 .app-header {
   position: sticky;
   top: 0;
@@ -72,13 +75,14 @@ button {
 .header-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 20px;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 .logo h1 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   background: linear-gradient(135deg, var(--accent), #8B5CF6);
   -webkit-background-clip: text;
@@ -86,61 +90,70 @@ button {
   color: transparent;
 }
 .logo p {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--text-tertiary);
 }
 .header-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
 }
 .theme-toggle, .back-btn {
   background: var(--surface-hover);
   border: 1px solid var(--border);
   border-radius: 40px;
-  padding: 8px 16px;
-  font-size: 0.875rem;
+  padding: 8px 12px;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--text-secondary);
+  min-height: 40px;
 }
 .theme-toggle {
   width: 40px;
   padding: 8px;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
 }
 .back-btn:hover, .theme-toggle:hover {
   background: var(--border);
 }
 
+/* Container */
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 20px;
+  padding: 20px 16px;
 }
 
+/* Cards de estatísticas (apenas total de indicadores no admin) */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: 1fr;
   gap: 16px;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
+}
+@media (min-width: 640px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
 }
 .stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 20px;
-  padding: 16px 20px;
+  padding: 16px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 .stat-title {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: var(--text-tertiary);
   margin-bottom: 4px;
 }
 .stat-value {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 700;
 }
 
+/* Indicador card */
 .indicador-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -148,16 +161,13 @@ button {
   margin-bottom: 12px;
   transition: all 0.2s;
 }
-.indicador-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
 .indicador-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
+  gap: 12px;
+  padding: 14px;
   cursor: pointer;
+  touch-action: manipulation;
 }
 .avatar {
   width: 48px;
@@ -169,17 +179,18 @@ button {
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
+  flex-shrink: 0;
 }
 .indicador-info {
   flex: 1;
 }
 .indicador-nome {
   font-weight: 600;
-  font-size: 1.125rem;
+  font-size: 1rem;
 }
 .indicador-pin {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--text-tertiary);
 }
 .indicador-actions {
@@ -190,9 +201,10 @@ button {
   background: var(--surface-hover);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 6px 12px;
-  font-size: 0.875rem;
+  padding: 8px 12px;
+  font-size: 0.8rem;
   font-weight: 500;
+  min-height: 40px;
 }
 .btn-icon.danger {
   background: var(--danger-bg);
@@ -200,6 +212,7 @@ button {
   border-color: var(--danger-bg);
 }
 
+/* Process card (mobile otimizado) */
 .process-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -208,32 +221,31 @@ button {
   overflow: hidden;
   transition: all 0.2s;
 }
-.process-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
 .card-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
+  gap: 12px;
+  padding: 14px;
   cursor: pointer;
+  touch-action: manipulation;
 }
 .card-info {
   flex: 1;
 }
 .card-title {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 .card-subtitle {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: var(--text-tertiary);
 }
 .badge-priority {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   padding: 4px 8px;
   border-radius: 40px;
   font-weight: 600;
+  white-space: nowrap;
 }
 .badge-high {
   background: var(--danger-bg);
@@ -251,13 +263,14 @@ button {
   font-size: 1.2rem;
   transition: transform 0.2s;
   color: var(--text-tertiary);
+  padding: 8px;
 }
 .expand-icon.open {
   transform: rotate(180deg);
 }
 .card-body {
   border-top: 1px solid var(--border);
-  padding: 16px;
+  padding: 14px;
   background: var(--surface-hover);
 }
 .pend-chips {
@@ -269,21 +282,27 @@ button {
 .chip {
   background: var(--danger-bg);
   color: var(--danger);
-  padding: 6px 12px;
+  padding: 8px 12px;
   border-radius: 40px;
   font-size: 0.75rem;
   font-weight: 500;
+  touch-action: manipulation;
 }
 .actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 16px;
 }
 .btn {
-  padding: 8px 16px;
-  border-radius: 12px;
+  padding: 10px 16px;
+  border-radius: 40px;
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .btn-primary {
   background: var(--accent);
@@ -302,26 +321,29 @@ button {
   color: var(--danger);
 }
 
+/* FAB mobile amigável */
 .fab {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: 20px;
+  right: 20px;
   width: 56px;
   height: 56px;
   border-radius: 28px;
   background: var(--accent);
   color: white;
-  font-size: 24px;
+  font-size: 28px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
+  touch-action: manipulation;
+  z-index: 20;
 }
-.fab:hover {
-  background: var(--accent-hover);
-  transform: scale(1.02);
+.fab:active {
+  transform: scale(0.96);
 }
 
+/* Modal responsivo */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -329,20 +351,31 @@ button {
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
+}
+@media (min-width: 640px) {
+  .modal-overlay {
+    align-items: center;
+  }
 }
 .modal-sheet {
   background: var(--surface);
-  width: 90%;
+  width: 100%;
   max-width: 520px;
   max-height: 85vh;
-  border-radius: 28px;
+  border-radius: 28px 28px 0 0;
   overflow-y: auto;
   box-shadow: 0 20px 35px rgba(0,0,0,0.3);
 }
+@media (min-width: 640px) {
+  .modal-sheet {
+    border-radius: 28px;
+    margin: 20px;
+  }
+}
 .modal-header {
-  padding: 20px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
@@ -356,7 +389,7 @@ button {
 }
 .field label {
   display: block;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 500;
   margin-bottom: 6px;
 }
@@ -365,28 +398,34 @@ button {
   background: var(--surface-hover);
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 10px 14px;
+  padding: 12px 14px;
+  font-size: 0.9rem;
   color: var(--text-primary);
   font-family: inherit;
 }
 .prio-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 .prio-btn {
-  padding: 6px 14px;
+  padding: 8px 16px;
   border-radius: 40px;
   background: var(--surface-hover);
   border: 1px solid var(--border);
+  font-size: 0.8rem;
+  min-height: 40px;
 }
 .prio-btn.active {
   background: var(--accent);
   color: white;
   border-color: var(--accent);
 }
+
+/* Toast */
 .toast-container {
   position: fixed;
-  bottom: 100px;
+  bottom: 90px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1100;
@@ -394,17 +433,32 @@ button {
   flex-direction: column;
   gap: 8px;
   pointer-events: none;
+  width: 90%;
+  max-width: 300px;
 }
 .toast {
   background: var(--surface);
   border-left: 4px solid var(--accent);
-  padding: 10px 20px;
+  padding: 10px 16px;
   border-radius: 40px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   pointer-events: auto;
+  text-align: center;
 }
 .hidden { display: none; }
+
+/* Busca */
+.search-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 40px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  min-height: 44px;
+}
 </style>
 </head>
 <body>
@@ -467,9 +521,7 @@ function ini(nome) {
   if (parts.length === 1) return parts[0].substring(0,2).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
-function fdt(ts) {
-  return ts?.toDate ? ts.toDate().toLocaleDateString('pt-BR') : '—';
-}
+
 function unsubAll() {
   if (unsubInd) unsubInd();
   if (unsubProc) unsubProc();
@@ -480,7 +532,7 @@ function unsubAll() {
 function render() {
   const app = document.getElementById('app');
   if (tela === 'login') {
-    app.innerHTML = `<div class="container" style="max-width:400px;margin:40px auto"><div class="logo"><h1>Meu controle de processos</h1></div><div style="margin-top:32px"><input id="pinInput" type="number" placeholder="Digite seu PIN" style="width:100%;padding:12px;margin-bottom:12px;background:var(--surface);border:1px solid var(--border);border-radius:16px;color:var(--text-primary)"><button id="btnPin" class="btn btn-primary" style="width:100%">Entrar</button><button id="btnAdmin" class="btn btn-outline" style="width:100%;margin-top:8px">Acesso do Advogado</button><div id="loginErr" style="color:var(--danger);margin-top:8px"></div></div></div>`;
+    app.innerHTML = `<div class="container" style="max-width:400px;margin:40px auto"><div class="logo"><h1>Meu controle de processos</h1></div><div style="margin-top:32px"><input id="pinInput" type="number" placeholder="Digite seu PIN" style="width:100%;padding:14px;margin-bottom:12px;background:var(--surface);border:1px solid var(--border);border-radius:40px;color:var(--text-primary);font-size:1rem"><button id="btnPin" class="btn btn-primary" style="width:100%">Entrar</button><button id="btnAdmin" class="btn btn-outline" style="width:100%;margin-top:8px">Acesso do Advogado</button><div id="loginErr" style="color:var(--danger);margin-top:8px"></div></div></div>`;
     document.getElementById('btnPin').onclick = () => {
       const pin = document.getElementById('pinInput').value.trim();
       if (pin === ADMIN_SENHA) {
@@ -492,7 +544,7 @@ function render() {
           if (snap.empty) document.getElementById('loginErr').innerText = 'PIN inválido';
           else {
             indAtual = { id: snap.docs[0].id, ...snap.docs[0].data() };
-            isAdmin = false;   // FORÇA ADMIN FALSO
+            isAdmin = false;
             tela = 'indicador';
             render();
           }
@@ -502,7 +554,7 @@ function render() {
     document.getElementById('btnAdmin').onclick = () => { tela = 'adminAuth'; render(); };
   } 
   else if (tela === 'adminAuth') {
-    app.innerHTML = `<div class="container" style="max-width:400px;margin:40px auto"><div class="logo"><h1>Advogado</h1></div><div style="margin-top:32px"><input id="adminPass" type="password" placeholder="Senha" style="width:100%;padding:12px;margin-bottom:12px;background:var(--surface);border:1px solid var(--border);border-radius:16px"><button id="btnAdminEnter" class="btn btn-primary" style="width:100%">Entrar</button><button id="btnBack" class="btn btn-outline" style="width:100%;margin-top:8px">Voltar</button><div id="adminErr" style="color:var(--danger)"></div></div></div>`;
+    app.innerHTML = `<div class="container" style="max-width:400px;margin:40px auto"><div class="logo"><h1>Advogado</h1></div><div style="margin-top:32px"><input id="adminPass" type="password" placeholder="Senha" style="width:100%;padding:14px;margin-bottom:12px;background:var(--surface);border:1px solid var(--border);border-radius:40px"><button id="btnAdminEnter" class="btn btn-primary" style="width:100%">Entrar</button><button id="btnBack" class="btn btn-outline" style="width:100%;margin-top:8px">Voltar</button><div id="adminErr" style="color:var(--danger)"></div></div></div>`;
     document.getElementById('btnAdminEnter').onclick = () => {
       if (document.getElementById('adminPass').value === ADMIN_SENHA) {
         isAdmin = true;
@@ -521,13 +573,12 @@ function render() {
     });
   }
   else if (tela === 'indicador') {
-    unsubAll();
-    // Proteção extra: se não tiver indAtual ou isAdmin for inconsistente, força logout
     if (!indAtual) {
       tela = 'login';
       render();
       return;
     }
+    unsubAll();
     unsubProc = db.collection('processos').where('indicadorId', '==', indAtual.id).onSnapshot(snap => {
       processos = [];
       snap.forEach(d => processos.push({ id: d.id, ...d.data() }));
@@ -538,7 +589,7 @@ function render() {
 
 function renderAdmin() {
   const app = document.getElementById('app');
-  let html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Meu controle de processos</h1><p>Painel Admin</p></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" onclick="tela='login';render()">Sair</button></div></div></div><div class="container"><div class="dashboard-grid"><div class="stat-card"><div class="stat-title">Indicadores</div><div class="stat-value">${indicadores.length}</div></div><div class="stat-card"><div class="stat-title">Processos com pendências</div><div class="stat-value">${processos.filter(p => p.pends?.length).length}</div></div></div><div class="filters-bar" style="margin-bottom:20px;display:flex;justify-content:space-between;align-items:center"><input type="text" id="searchInd" class="search-input" placeholder="Buscar indicador..." style="flex:1;padding:10px;border-radius:16px;background:var(--surface);border:1px solid var(--border)"><button class="fab" style="position:relative;bottom:0;right:0;margin-left:12px" onclick="openIndModal()">+</button></div><div id="indicadoresList"></div></div>`;
+  let html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Meu controle de processos</h1><p>Painel Admin</p></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" onclick="tela='login';render()">Sair</button></div></div></div><div class="container"><div class="dashboard-grid"><div class="stat-card"><div class="stat-title">Indicadores</div><div class="stat-value">${indicadores.length}</div></div></div><div class="filters-bar" style="margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><input type="text" id="searchInd" class="search-input" placeholder="Buscar indicador..."><button class="fab" style="position:relative;bottom:0;right:0;margin:0;width:auto;padding:0 20px;border-radius:40px;font-size:0.9rem" onclick="openIndModal()">+ Novo</button></div><div id="indicadoresList"></div></div>`;
   app.innerHTML = html;
   const container = document.getElementById('indicadoresList');
   if (!indicadores.length) container.innerHTML = '<div class="stat-card">Nenhum indicador cadastrado. Clique em + para adicionar.</div>';
@@ -560,14 +611,11 @@ function renderAdmin() {
 
 function renderIndicador() {
   const app = document.getElementById('app');
-  // Somente processos com pendências
   const pendentes = processos.filter(p => p.pends && p.pends.length > 0);
   
-  // CORREÇÃO DEFINITIVA: não usar string de ação, sim um evento separado
-  const html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Meu controle de processos</h1><p>${indAtual.nome}</p></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" id="backButtonInd">Voltar</button></div></div></div><div class="container"><div class="dashboard-grid"><div class="stat-card"><div class="stat-title">Processos com pendências</div><div class="stat-value">${pendentes.length}</div></div></div><div id="processosList"></div>${isAdmin ? '<button class="fab" onclick="openProcModal()">+</button>' : ''}</div>`;
+  const html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Meu controle de processos</h1><p>${indAtual.nome}</p></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" id="backButtonInd">Voltar</button></div></div></div><div class="container"><div id="processosList"></div>${isAdmin ? '<button class="fab" onclick="openProcModal()">+</button>' : ''}</div>`;
   app.innerHTML = html;
   
-  // Adiciona o evento de voltar de forma segura
   const backBtn = document.getElementById('backButtonInd');
   if (backBtn) {
     backBtn.onclick = () => {
@@ -645,7 +693,7 @@ window.openProcModal = () => {
   fObs = '';
   editId = null;
   fPrioridade = 'media';
-  const modalHtml = `<div class="modal-overlay" id="procModal"><div class="modal-sheet"><div class="modal-header"><h3>${editId ? 'Editar Processo' : 'Novo Processo'}</h3><button onclick="closeProcModal()" style="font-size:1.5rem">✖️</button></div><div class="modal-body"><div class="field"><label>Nome do cliente</label><input id="procNome" value="${fNome.replace(/"/g, '&quot;')}"></div><div class="field"><label>Tipo</label><select id="procTipo">${TIPOS.map(t => `<option ${t === fTipo ? 'selected' : ''}>${t}</option>`).join('')}</select></div><div class="field"><label>Pendências</label><div id="pendList"></div><div style="display:flex;gap:8px;margin-top:8px"><input id="customPend" placeholder="Personalizada" style="flex:1"><button class="btn btn-outline" onclick="addCustomPend()">+</button></div></div><div class="field"><label>Observações</label><textarea id="procObs">${fObs}</textarea></div><div class="field"><label>Prioridade</label><div class="prio-group"><button class="prio-btn ${fPrioridade === 'alta' ? 'active' : ''}" onclick="setPrio('alta')">Alta</button><button class="prio-btn ${fPrioridade === 'media' ? 'active' : ''}" onclick="setPrio('media')">Média</button><button class="prio-btn ${fPrioridade === 'baixa' ? 'active' : ''}" onclick="setPrio('baixa')">Baixa</button></div></div><div style="display:flex;gap:12px;margin-top:24px"><button class="btn btn-primary" onclick="saveProc()">Salvar</button><button class="btn btn-outline" onclick="closeProcModal()">Cancelar</button></div></div></div></div>`;
+  const modalHtml = `<div class="modal-overlay" id="procModal"><div class="modal-sheet"><div class="modal-header"><h3>${editId ? 'Editar Processo' : 'Novo Processo'}</h3><button onclick="closeProcModal()" style="font-size:1.5rem">✖️</button></div><div class="modal-body"><div class="field"><label>Nome do cliente</label><input id="procNome" value="${fNome.replace(/"/g, '&quot;')}"></div><div class="field"><label>Tipo</label><select id="procTipo">${TIPOS.map(t => `<option ${t === fTipo ? 'selected' : ''}>${t}</option>`).join('')}</select></div><div class="field"><label>Pendências</label><div id="pendList"></div><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><input id="customPend" placeholder="Personalizada" style="flex:1"><button class="btn btn-outline" onclick="addCustomPend()">+</button></div></div><div class="field"><label>Observações</label><textarea id="procObs">${fObs}</textarea></div><div class="field"><label>Prioridade</label><div class="prio-group"><button class="prio-btn ${fPrioridade === 'alta' ? 'active' : ''}" onclick="setPrio('alta')">Alta</button><button class="prio-btn ${fPrioridade === 'media' ? 'active' : ''}" onclick="setPrio('media')">Média</button><button class="prio-btn ${fPrioridade === 'baixa' ? 'active' : ''}" onclick="setPrio('baixa')">Baixa</button></div></div><div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap"><button class="btn btn-primary" onclick="saveProc()">Salvar</button><button class="btn btn-outline" onclick="closeProcModal()">Cancelar</button></div></div></div></div>`;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
   renderPendList();
   window.setPrio = (p) => {
