@@ -171,7 +171,6 @@ select option{background:#fff;color:var(--txt)}
 <script>
 /* ══════════════════════════════════════════════
    FIREBASE CONFIG — PARCEIROS LSA
-   Integração completa com o projeto "parceiroslsa"
 ══════════════════════════════════════════════ */
 var firebaseConfig = {
   apiKey: "AIzaSyDp-pkn5NBp8LRaR9n4r-sywoH9UMrLG-A",
@@ -184,9 +183,10 @@ var firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
-db.enablePersistence({synchronizeTabs:true}).catch(function(err){
-  console.warn("Persistence error (pode ser múltiplas abas):", err);
-});
+
+// CORREÇÃO 1: Removido enablePersistence para evitar erro "failed-precondition"
+// A persistência offline causava conflitos com consultas sem índices.
+// Agora os dados são sempre buscados da rede, garantindo funcionamento imediato.
 
 /* ══════════════════════════════════════════════
    CONSTANTES E ADMIN
@@ -321,6 +321,8 @@ function renderAdminAuth(){
 
 /* ══════════════════════════════════════════════
    PAINEL ADMIN (GERENCIAR INDICADORES)
+   CORREÇÃO 2: Removido orderBy da consulta para evitar erro de índice.
+   A ordenação é feita no front-end com sort.
 ══════════════════════════════════════════════ */
 function renderAdmin(){
   unsubAll(); expCard = null;
@@ -339,9 +341,12 @@ function renderAdmin(){
     + '<div id="dOverlay" style="display:none"></div>';
   ge('btnLogout').addEventListener('click', function(){ isAdmin=false; tela='login'; renderLogin(); });
   ge('fab').addEventListener('click', function(){ resetFInd(); openIndModal(); });
-  unsubInd = db.collection('indicadores').orderBy('nome','asc').onSnapshot(function(snap){
+  // Removido .orderBy('nome','asc') - agora ordenamos no front
+  unsubInd = db.collection('indicadores').onSnapshot(function(snap){
     indicadores = [];
     snap.forEach(function(d){ indicadores.push(Object.assign({id:d.id}, d.data())); });
+    // Ordenação manual por nome
+    indicadores.sort(function(a,b){ return (a.nome || '').localeCompare(b.nome || ''); });
     if(ge('connecting')) ge('connecting').style.display = 'none';
     if(ge('tabs')){ ge('tabs').style.display = 'flex'; ge('tabs').innerHTML = '<div class="tab"><span class="num">'+indicadores.length+'</span><span class="lbl">Indicadores cadastrados</span></div>'; }
     if(ge('syncDot')) ge('syncDot').classList.add('live');
@@ -453,6 +458,10 @@ function closeDelIndModal(){ var ov = ge('dOverlay'); ov.style.display = 'none';
 
 /* ══════════════════════════════════════════════
    PAINEL DO INDICADOR (PROCESSOS)
+   CORREÇÃO 2 (continuação): removido orderBy('data','asc')
+   Ordenação manual por timestamp (data)
+   CORREÇÃO 3: Garantir que pendências adicionadas apareçam imediatamente
+   (o snapshot já atualiza, mas agora sem erro de índice)
 ══════════════════════════════════════════════ */
 function renderIndicador(){
   if(unsubProc){ unsubProc(); unsubProc = null; }
@@ -475,12 +484,21 @@ function renderIndicador(){
     if(isAdmin){ tela='admin'; renderAdmin(); } else { indAtual=null; tela='login'; renderLogin(); }
   });
   if(isAdmin){ ge('fab').addEventListener('click', function(){ resetF(); openProcModal(); }); }
+  // Consulta sem orderBy para evitar índice
   unsubProc = db.collection('processos')
     .where('indicadorId','==',indAtual.id)
-    .orderBy('data','asc')
     .onSnapshot(function(snap){
       processos = [];
-      snap.forEach(function(d){ processos.push(Object.assign({id:d.id}, d.data())); });
+      snap.forEach(function(d){ 
+        var data = d.data();
+        processos.push(Object.assign({id:d.id}, data)); 
+      });
+      // Ordenação manual por data (timestamp) - mais recentes primeiro? Vamos usar crescente (mais antigos primeiro) como era antes
+      processos.sort(function(a,b){
+        var ta = a.data ? (a.data.toDate ? a.data.toDate().getTime() : new Date(a.data).getTime()) : 0;
+        var tb = b.data ? (b.data.toDate ? b.data.toDate().getTime() : new Date(b.data).getTime()) : 0;
+        return ta - tb;
+      });
       if(ge('connecting')) ge('connecting').style.display = 'none';
       if(ge('syncDot')) ge('syncDot').classList.add('live');
       renderProcTabs(); renderProcList();
@@ -509,7 +527,7 @@ function renderProcList(){
     if(ab){
       body += '<div class="card-body"><div class="card-date">Cadastrado em '+fdt(c.data)+'</div>';
       body += '<div class="sec-label">Pendências'+(isAdmin ? ' — toque para sanar' : '')+'</div><div class="pend-chips">';
-      c.pends.forEach(function(p){
+      (c.pends || []).forEach(function(p){
         var safe = p.replace(/"/g,'&quot;');
         if(!isAdmin){ body += '<div class="pchip ro">'+p+'</div>'; }
         else{ body += '<div class="pchip" data-id="'+c.id+'" data-p="'+safe+'"><span class="cx">✕</span>'+p+'</div>'; }
@@ -531,7 +549,7 @@ function renderProcList(){
       + '<div class="avatar pend">'+ini(c.nome)+'</div>'
       + '<div class="card-info"><div class="card-name">'+c.nome+'</div><div class="card-tipo">'+c.tipo+'</div></div>'
       + '<div class="card-right"><div class="badge pend"><span class="badge-dot"></span>Pendente</div>'
-      + '<div class="pend-count">'+c.pends.length+' pendência'+(c.pends.length>1?'s':'')+'</div></div>'
+      + '<div class="pend-count">'+(c.pends ? c.pends.length : 0)+' pendência'+(c.pends && c.pends.length>1 ? 's':'')+'</div></div>'
       + '<span class="chevron'+(ab ? ' open' : '')+'">⌄</span>'
       + '</div>'+body+'</div>';
   });
@@ -544,7 +562,7 @@ function renderProcList(){
       ch.addEventListener('click', function(e){
         e.stopPropagation();
         var c = processos.find(function(x){ return x.id === ch.dataset.id; }); if(!c) return;
-        var novos = c.pends.filter(function(p){ return p !== ch.dataset.p; });
+        var novos = (c.pends || []).filter(function(p){ return p !== ch.dataset.p; });
         db.collection('processos').doc(ch.dataset.id).update({pends: novos}).catch(function(){ showToast('Erro.','err'); });
       });
     });
@@ -552,7 +570,7 @@ function renderProcList(){
       b.addEventListener('click', function(e){
         e.stopPropagation();
         var c = processos.find(function(x){ return x.id === b.dataset.id; }); if(!c) return;
-        fNome = c.nome; fTipo = c.tipo; fPends = c.pends.slice(); fObs = c.obs || ''; fCustom = ''; editId = c.id; openProcModal();
+        fNome = c.nome; fTipo = c.tipo; fPends = (c.pends || []).slice(); fObs = c.obs || ''; fCustom = ''; editId = c.id; openProcModal();
       });
     });
     el.querySelectorAll('.bok').forEach(function(b){
@@ -568,7 +586,7 @@ function renderProcList(){
   }
 }
 
-/* modais processo */
+/* modais processo (sem alterações significativas, apenas robustez) */
 function procFormHTML(){
   var togsHTML = '';
   PPAD.forEach(function(p){ var on = fPends.indexOf(p) >= 0 ? ' on' : ''; togsHTML += '<button class="ptog'+on+'" data-p="'+p.replace(/"/g,'&quot;')+'">'+p+'</button>'; });
