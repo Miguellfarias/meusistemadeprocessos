@@ -15,7 +15,6 @@
 }
 
 :root {
-  /* Cores claras */
   --bg-page: #F5F7FB;
   --surface: #FFFFFF;
   --surface-hover: #F0F2F5;
@@ -62,7 +61,6 @@ button {
   transition: all 0.2s ease;
 }
 
-/* Header */
 .app-header {
   position: sticky;
   top: 0;
@@ -115,14 +113,12 @@ button {
   background: var(--border);
 }
 
-/* Container principal */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px 20px;
 }
 
-/* Cards de estatísticas (admin) */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -146,7 +142,6 @@ button {
   font-weight: 700;
 }
 
-/* Lista de indicadores (admin) */
 .indicador-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -206,7 +201,6 @@ button {
   border-color: var(--danger-bg);
 }
 
-/* Card de processo (só pendentes) */
 .process-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -309,7 +303,6 @@ button {
   color: var(--danger);
 }
 
-/* FAB */
 .fab {
   position: fixed;
   bottom: 24px;
@@ -330,7 +323,6 @@ button {
   transform: scale(1.02);
 }
 
-/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -565,7 +557,9 @@ function renderIndicador() {
   const app = document.getElementById('app');
   // Somente processos com pendências
   const pendentes = processos.filter(p => p.pends && p.pends.length > 0);
-  let html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Meu controle de processos</h1><p>${indAtual.nome}</p></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" onclick="tela='admin';render()">Voltar</button></div></div></div><div class="container"><div class="dashboard-grid"><div class="stat-card"><div class="stat-title">Processos com pendências</div><div class="stat-value">${pendentes.length}</div></div></div><div id="processosList"></div>${isAdmin ? '<button class="fab" onclick="openProcModal()">+</button>' : ''}</div>`;
+  // CORREÇÃO DE SEGURANÇA: botão Voltar só vai para admin SE isAdmin for true
+  const backAction = isAdmin ? "tela='admin';render()" : "tela='login';render()";
+  let html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Meu controle de processos</h1><p>${indAtual.nome}</p></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" onclick="${backAction}">Voltar</button></div></div></div><div class="container"><div class="dashboard-grid"><div class="stat-card"><div class="stat-title">Processos com pendências</div><div class="stat-value">${pendentes.length}</div></div></div><div id="processosList"></div>${isAdmin ? '<button class="fab" onclick="openProcModal()">+</button>' : ''}</div>`;
   app.innerHTML = html;
   if (!pendentes.length) {
     document.getElementById('processosList').innerHTML = '<div class="stat-card">Nenhum processo com pendências.</div>';
@@ -697,7 +691,7 @@ window.delProc = (id) => {
 window.marcarOK = (id) => {
   db.collection('processos').doc(id).update({ pends: [] }).then(() => {
     showToast('Processo OK!');
-    render(); // recarrega e o processo desaparece
+    render();
   }).catch(() => showToast('Erro', 'error'));
 };
 
