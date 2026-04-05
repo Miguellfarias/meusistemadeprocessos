@@ -3,85 +3,425 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Parceiros LSA — Sistema Avançado</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Meu controle de processos</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
-/* --- DESIGN SYSTEM --- */
-:root {
-  --bg-primary: #FFFFFF; --bg-secondary: #F9FAFB; --bg-tertiary: #F3F4F6;
-  --surface: #FFFFFF; --border: #E5E7EB;
-  --text-primary: #111827; --text-secondary: #4B5563; --text-tertiary: #9CA3AF;
-  --blue: #3B82F6; --blue-hover: #2563EB; --blue-bg: rgba(59,130,246,0.1);
-  --red: #EF4444; --red-bg: rgba(239,68,68,0.1);
-  --green: #10B981; --green-bg: rgba(16,185,129,0.1);
-  --yellow: #F59E0B;
-  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px;
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --radius-lg: 0.75rem; --radius-xl: 1rem;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-.dark { --bg-primary: #0F172A; --bg-secondary: #1E293B; --surface: #1E293B;
-  --border: #334155; --text-primary: #F1F5F9; --text-secondary: #CBD5E1;
-  --blue: #60A5FA; --red: #F87171; }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: var(--font-sans); background: var(--bg-primary); color: var(--text-primary); transition: background 0.2s; }
-button { cursor: pointer; border: none; background: none; font-family: inherit; }
-.app-header { position: sticky; top: 0; z-index: 50; background: var(--surface); border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
-.header-content { padding: var(--space-4) var(--space-5); display: flex; align-items: center; justify-content: space-between; max-width: 1400px; margin: 0 auto; }
-.logo h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, var(--blue), #8B5CF6); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.header-actions { display: flex; gap: var(--space-3); }
-.theme-toggle, .back-btn { background: var(--bg-tertiary); border-radius: 999px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
-.back-btn { width: auto; padding: 0 16px; border-radius: 20px; }
-.container { max-width: 1400px; margin: 0 auto; padding: var(--space-4) var(--space-5); }
-.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6); }
-.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: var(--space-4); box-shadow: var(--shadow-sm); }
-.stat-title { font-size: 0.875rem; color: var(--text-tertiary); }
-.stat-value { font-size: 1.875rem; font-weight: 800; }
-.filters-bar { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-5); align-items: center; }
-.search-input, .sort-select { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-2) var(--space-3); color: var(--text-primary); flex: 1; }
-.filter-btn { background: var(--bg-tertiary); padding: var(--space-2) var(--space-4); border-radius: var(--radius-lg); }
-.filter-btn.active { background: var(--blue); color: white; }
-.process-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); margin-bottom: var(--space-4); overflow: hidden; transition: all 0.2s; }
-.card-header { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4); cursor: pointer; }
-.avatar { width: 52px; height: 52px; border-radius: var(--radius-xl); background: var(--blue-bg); color: var(--blue); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem; }
-.card-info { flex: 1; }
-.card-title { font-weight: 700; }
-.progress-bar { margin-top: var(--space-2); height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--blue); width: 0%; transition: width 0.2s; }
-.badge-priority { padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
-.badge-high { background: var(--red-bg); color: var(--red); }
-.badge-medium { background: rgba(245,158,11,0.1); color: var(--yellow); }
-.badge-low { background: var(--green-bg); color: var(--green); }
-.expand-icon { transition: transform 0.2s; }
-.expand-icon.open { transform: rotate(180deg); }
-.card-body { border-top: 1px solid var(--border); padding: var(--space-4); background: var(--bg-secondary); }
-.toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
-.toast { background: var(--surface); padding: 10px 20px; border-radius: 999px; box-shadow: var(--shadow-lg); font-size: 0.875rem; border-left: 4px solid var(--blue); pointer-events: auto; }
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
-@media (min-width: 768px) { .modal-overlay { align-items: center; } }
-.modal-sheet { background: var(--surface); width: 100%; max-width: 600px; max-height: 90dvh; border-radius: 1.5rem 1.5rem 0 0; overflow-y: auto; }
-@media (min-width: 768px) { .modal-sheet { border-radius: 1.5rem; margin: 20px; } }
-.modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
-.modal-body { padding: 20px; }
-.field { margin-bottom: 16px; }
-.field label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 4px; }
-.field input, .field select, .field textarea { width: 100%; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 8px 12px; color: var(--text-primary); }
-.prio-btn { padding: 6px 12px; border-radius: 999px; background: var(--bg-tertiary); margin-right: 8px; }
-.prio-btn.active { background: var(--blue); color: white; }
-.fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 28px; background: var(--blue); color: white; font-size: 24px; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-lg); }
+
+:root {
+  /* Cores claras */
+  --bg-page: #F5F7FB;
+  --surface: #FFFFFF;
+  --surface-hover: #F0F2F5;
+  --border: #E2E8F0;
+  --text-primary: #1E293B;
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
+  --accent: #3B82F6;
+  --accent-hover: #2563EB;
+  --accent-bg: rgba(59,130,246,0.1);
+  --danger: #EF4444;
+  --danger-bg: rgba(239,68,68,0.1);
+  --success: #10B981;
+}
+
+.dark {
+  --bg-page: #000000;
+  --surface: #111111;
+  --surface-hover: #1A1A1A;
+  --border: #2A2A2A;
+  --text-primary: #EDEDED;
+  --text-secondary: #B0B0B0;
+  --text-tertiary: #6B6B6B;
+  --accent: #3B82F6;
+  --accent-hover: #60A5FA;
+  --accent-bg: rgba(59,130,246,0.2);
+  --danger: #F87171;
+  --danger-bg: rgba(248,113,113,0.15);
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  transition: background 0.2s, color 0.2s;
+  line-height: 1.5;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+/* Header */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  background-color: rgba(var(--surface-rgb, 0,0,0), 0.9);
+}
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), #8B5CF6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.logo p {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.theme-toggle, .back-btn {
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.theme-toggle {
+  width: 40px;
+  padding: 8px;
+  font-size: 1.25rem;
+}
+.back-btn:hover, .theme-toggle:hover {
+  background: var(--border);
+}
+
+/* Container principal */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* Cards de estatísticas (admin) */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 16px 20px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.stat-title {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+/* Lista de indicadores (admin) */
+.indicador-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  margin-bottom: 12px;
+  transition: all 0.2s;
+}
+.indicador-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.indicador-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  cursor: pointer;
+}
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+.indicador-info {
+  flex: 1;
+}
+.indicador-nome {
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+.indicador-pin {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+.indicador-actions {
+  display: flex;
+  gap: 8px;
+}
+.btn-icon {
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.btn-icon.danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: var(--danger-bg);
+}
+
+/* Card de processo (só pendentes) */
+.process-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.process-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  cursor: pointer;
+}
+.card-info {
+  flex: 1;
+}
+.card-title {
+  font-weight: 700;
+  font-size: 1rem;
+}
+.card-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+}
+.badge-priority {
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 40px;
+  font-weight: 600;
+}
+.badge-high {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.badge-medium {
+  background: rgba(245,158,11,0.15);
+  color: #F59E0B;
+}
+.badge-low {
+  background: rgba(16,185,129,0.15);
+  color: #10B981;
+}
+.expand-icon {
+  font-size: 1.2rem;
+  transition: transform 0.2s;
+  color: var(--text-tertiary);
+}
+.expand-icon.open {
+  transform: rotate(180deg);
+}
+.card-body {
+  border-top: 1px solid var(--border);
+  padding: 16px;
+  background: var(--surface-hover);
+}
+.pend-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.chip {
+  background: var(--danger-bg);
+  color: var(--danger);
+  padding: 6px 12px;
+  border-radius: 40px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.btn {
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.btn-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* FAB */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  background: var(--accent);
+  color: white;
+  font-size: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fab:hover {
+  background: var(--accent-hover);
+  transform: scale(1.02);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-sheet {
+  background: var(--surface);
+  width: 90%;
+  max-width: 520px;
+  max-height: 85vh;
+  border-radius: 28px;
+  overflow-y: auto;
+  box-shadow: 0 20px 35px rgba(0,0,0,0.3);
+}
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-body {
+  padding: 20px;
+}
+.field {
+  margin-bottom: 20px;
+}
+.field label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.field input, .field select, .field textarea {
+  width: 100%;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-family: inherit;
+}
+.prio-group {
+  display: flex;
+  gap: 8px;
+}
+.prio-btn {
+  padding: 6px 14px;
+  border-radius: 40px;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+}
+.prio-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+.toast-container {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--surface);
+  border-left: 4px solid var(--accent);
+  padding: 10px 20px;
+  border-radius: 40px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-size: 0.875rem;
+  pointer-events: auto;
+}
 .hidden { display: none; }
 </style>
 </head>
 <body>
 <div id="app"></div>
 <div id="toastContainer" class="toast-container"></div>
+
 <script>
-// Firebase Config
+// ---------- FIREBASE ----------
 const firebaseConfig = {
   apiKey: "AIzaSyDp-pkn5NBp8LRaR9n4r-sywoH9UMrLG-A",
   authDomain: "parceiroslsa.firebaseapp.com",
@@ -92,23 +432,33 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+
 const ADMIN_SENHA = '1234';
 const TIPOS = ['Aposentadoria por Invalidez','Auxílio-Doença','BPC/LOAS','Aposentadoria por Idade','Aposentadoria por Tempo de Contribuição','Pensão por Morte','Auxílio-Acidente','Revisão de Benefício','Outros'];
 const PPAD = ['Laudo médico','Receitas médicas','Comprovante de residência','RG / CPF','CTPS','Extrato do CNIS','Procuração','Documentos do INSS','Atestado médico','Exame complementar','Comprovante de renda','Certidão de nascimento'];
 
-let tela = 'login', indicadores = [], processos = [], indAtual = null, expCard = null, unsubInd = null, unsubProc = null, isAdmin = false;
-let filtroStatus = 'pendentes', searchTerm = '', ordenacao = 'data_asc';
-let fNome = '', fTipo = TIPOS[0], fPends = [], fObs = '', editId = null, delId = null, fPrioridade = 'media';
-let editIndId = null, delIndId = null;
+let tela = 'login';
+let indicadores = [];
+let processos = [];
+let indAtual = null;
+let expCard = null;
+let unsubInd = null;
+let unsubProc = null;
+let isAdmin = false;
+
+// Formulários
+let fNome = '', fTipo = TIPOS[0], fPends = [], fObs = '', editId = null, fPrioridade = 'media';
+let editIndId = null, fIndNome = '', fIndPin = '';
 
 function showToast(msg, type = 'info') {
   const c = document.getElementById('toastContainer');
   const t = document.createElement('div');
   t.className = `toast ${type}`;
-  t.innerHTML = msg;
+  t.textContent = msg;
   c.appendChild(t);
-  setTimeout(() => t.remove(), 4000);
+  setTimeout(() => t.remove(), 3500);
 }
+
 function toggleTheme() {
   document.body.classList.toggle('dark');
   localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
@@ -119,10 +469,11 @@ function loadTheme() {
   else if (saved === 'light') document.body.classList.remove('dark');
   else if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.body.classList.add('dark');
 }
-function ini(n) {
-  if (!n) return '??';
-  const parts = n.trim().split(' ');
-  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+
+function ini(nome) {
+  if (!nome) return '??';
+  const parts = nome.trim().split(' ');
+  if (parts.length === 1) return parts[0].substring(0,2).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 function fdt(ts) {
@@ -133,10 +484,12 @@ function unsubAll() {
   if (unsubProc) unsubProc();
   unsubInd = unsubProc = null;
 }
+
+// ---------- RENDER PRINCIPAL ----------
 function render() {
   const app = document.getElementById('app');
   if (tela === 'login') {
-    app.innerHTML = `<div class="container" style="max-width:400px;margin:40px auto"><div class="logo"><h1>Parceiros LSA</h1></div><div style="margin-top:32px"><input id="pinInput" type="number" placeholder="Digite seu PIN" style="width:100%;padding:12px;margin-bottom:12px"><button id="btnPin" class="filter-btn active" style="width:100%">Entrar</button><button id="btnAdmin" class="filter-btn" style="width:100%;margin-top:8px">Acesso do Advogado</button><div id="loginErr" style="color:var(--red);margin-top:8px"></div></div></div>`;
+    app.innerHTML = `<div class="container" style="max-width:400px;margin:40px auto"><div class="logo"><h1>Meu controle de processos</h1></div><div style="margin-top:32px"><input id="pinInput" type="number" placeholder="Digite seu PIN" style="width:100%;padding:12px;margin-bottom:12px;background:var(--surface);border:1px solid var(--border);border-radius:16px;color:var(--text-primary)"><button id="btnPin" class="btn btn-primary" style="width:100%">Entrar</button><button id="btnAdmin" class="btn btn-outline" style="width:100%;margin-top:8px">Acesso do Advogado</button><div id="loginErr" style="color:var(--danger);margin-top:8px"></div></div></div>`;
     document.getElementById('btnPin').onclick = () => {
       const pin = document.getElementById('pinInput').value.trim();
       if (pin === ADMIN_SENHA) {
@@ -156,8 +509,9 @@ function render() {
       }
     };
     document.getElementById('btnAdmin').onclick = () => { tela = 'adminAuth'; render(); };
-  } else if (tela === 'adminAuth') {
-    app.innerHTML = `<div class="container" style="max-width:400px;margin:40px auto"><div class="logo"><h1>Acesso Advogado</h1></div><div style="margin-top:32px"><input id="adminPass" type="password" placeholder="Senha" style="width:100%;padding:12px"><button id="btnAdminEnter" class="filter-btn active" style="width:100%;margin-top:12px">Entrar</button><button id="btnBack" class="filter-btn" style="width:100%;margin-top:8px">Voltar</button><div id="adminErr" style="color:var(--red)"></div></div></div>`;
+  } 
+  else if (tela === 'adminAuth') {
+    app.innerHTML = `<div class="container" style="max-width:400px;margin:40px auto"><div class="logo"><h1>Advogado</h1></div><div style="margin-top:32px"><input id="adminPass" type="password" placeholder="Senha" style="width:100%;padding:12px;margin-bottom:12px;background:var(--surface);border:1px solid var(--border);border-radius:16px"><button id="btnAdminEnter" class="btn btn-primary" style="width:100%">Entrar</button><button id="btnBack" class="btn btn-outline" style="width:100%;margin-top:8px">Voltar</button><div id="adminErr" style="color:var(--danger)"></div></div></div>`;
     document.getElementById('btnAdminEnter').onclick = () => {
       if (document.getElementById('adminPass').value === ADMIN_SENHA) {
         isAdmin = true;
@@ -166,66 +520,69 @@ function render() {
       } else document.getElementById('adminErr').innerText = 'Senha incorreta';
     };
     document.getElementById('btnBack').onclick = () => { tela = 'login'; render(); };
-  } else if (tela === 'admin') {
+  }
+  else if (tela === 'admin') {
     unsubAll();
     unsubInd = db.collection('indicadores').onSnapshot(snap => {
       indicadores = [];
       snap.forEach(d => indicadores.push({ id: d.id, ...d.data() }));
-      renderAdminList();
+      renderAdmin();
     });
-    renderAdminList();
-  } else if (tela === 'indicador') {
+  }
+  else if (tela === 'indicador') {
     unsubAll();
     unsubProc = db.collection('processos').where('indicadorId', '==', indAtual.id).onSnapshot(snap => {
       processos = [];
       snap.forEach(d => processos.push({ id: d.id, ...d.data() }));
-      renderIndicadorList();
+      renderIndicador();
     });
-    renderIndicadorList();
   }
 }
-function renderAdminList() {
+
+function renderAdmin() {
   const app = document.getElementById('app');
-  let html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Painel Administrativo</h1></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" onclick="tela='login';render()">Sair</button></div></div></div><div class="container"><div class="dashboard-grid"><div class="stat-card"><div class="stat-title">Indicadores</div><div class="stat-value">${indicadores.length}</div></div><div class="stat-card"><div class="stat-title">Processos Pendentes</div><div class="stat-value">${processos.filter(p => p.pends?.length).length}</div></div></div><div class="filters-bar"><input type="text" id="searchInput" class="search-input" placeholder="Buscar indicador..."><button class="fab" onclick="openIndModal()">+</button></div><div id="indicadoresList"></div></div>`;
+  let html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Meu controle de processos</h1><p>Painel Admin</p></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" onclick="tela='login';render()">Sair</button></div></div></div><div class="container"><div class="dashboard-grid"><div class="stat-card"><div class="stat-title">Indicadores</div><div class="stat-value">${indicadores.length}</div></div><div class="stat-card"><div class="stat-title">Processos com pendências</div><div class="stat-value">${processos.filter(p => p.pends?.length).length}</div></div></div><div class="filters-bar" style="margin-bottom:20px;display:flex;justify-content:space-between;align-items:center"><input type="text" id="searchInd" class="search-input" placeholder="Buscar indicador..." style="flex:1;padding:10px;border-radius:16px;background:var(--surface);border:1px solid var(--border)"><button class="fab" style="position:relative;bottom:0;right:0;margin-left:12px" onclick="openIndModal()">+</button></div><div id="indicadoresList"></div></div>`;
   app.innerHTML = html;
   const container = document.getElementById('indicadoresList');
   if (!indicadores.length) container.innerHTML = '<div class="stat-card">Nenhum indicador cadastrado. Clique em + para adicionar.</div>';
   else {
     let listHtml = '';
     indicadores.forEach(ind => {
-      listHtml += `<div class="process-card"><div class="card-header" onclick="selecionarIndicador('${ind.id}')"><div class="avatar">${ini(ind.nome)}</div><div class="card-info"><div class="card-title">${ind.nome}</div><div class="card-subtitle">PIN: ${ind.pin}</div></div><div><button class="filter-btn" onclick="event.stopPropagation();editInd('${ind.id}')">✏️</button><button class="filter-btn" style="background:var(--red-bg);color:var(--red)" onclick="event.stopPropagation();delInd('${ind.id}')">🗑️</button></div></div></div>`;
+      listHtml += `<div class="indicador-card"><div class="indicador-header" onclick="selecionarIndicador('${ind.id}')"><div class="avatar">${ini(ind.nome)}</div><div class="indicador-info"><div class="indicador-nome">${ind.nome}</div><div class="indicador-pin">PIN: ${ind.pin}</div></div><div class="indicador-actions"><button class="btn-icon" onclick="event.stopPropagation();editInd('${ind.id}')">✏️</button><button class="btn-icon danger" onclick="event.stopPropagation();delInd('${ind.id}')">🗑️</button></div></div></div>`;
     });
     container.innerHTML = listHtml;
   }
-  document.getElementById('searchInput')?.addEventListener('input', (e) => {
+  document.getElementById('searchInd')?.addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
-    document.querySelectorAll('#indicadoresList .process-card').forEach(card => {
-      const nome = card.querySelector('.card-title')?.innerText.toLowerCase();
+    document.querySelectorAll('#indicadoresList .indicador-card').forEach(card => {
+      const nome = card.querySelector('.indicador-nome')?.innerText.toLowerCase();
       card.style.display = nome?.includes(term) ? '' : 'none';
     });
   });
 }
-function renderIndicadorList() {
+
+function renderIndicador() {
   const app = document.getElementById('app');
-  const pendentes = processos.filter(p => p.pends?.length > 0);
-  let list = filtroStatus === 'todos' ? processos : pendentes;
-  if (ordenacao === 'data_asc') list.sort((a,b) => (a.data?.toDate?.()||0) - (b.data?.toDate?.()||0));
-  else list.sort((a,b) => (b.data?.toDate?.()||0) - (a.data?.toDate?.()||0));
-  let html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>${indAtual.nome}</h1></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" onclick="tela='admin';render()">Voltar</button></div></div></div><div class="container"><div class="dashboard-grid"><div class="stat-card"><div class="stat-title">Processos Pendentes</div><div class="stat-value">${pendentes.length}</div></div></div><div class="filters-bar"><select id="sortSelect" class="sort-select"><option value="data_asc" ${ordenacao==='data_asc'?'selected':''}>Mais antigos primeiro</option><option value="data_desc" ${ordenacao==='data_desc'?'selected':''}>Mais recentes primeiro</option></select><button class="filter-btn ${filtroStatus === 'pendentes' ? 'active' : ''}" onclick="filtroStatus='pendentes';renderIndicadorList()">Pendentes</button><button class="filter-btn ${filtroStatus === 'todos' ? 'active' : ''}" onclick="filtroStatus='todos';renderIndicadorList()">Todos</button></div><div id="processosList"></div>${isAdmin ? '<button class="fab" onclick="openProcModal()">+</button>' : ''}</div>`;
+  // Somente processos com pendências
+  const pendentes = processos.filter(p => p.pends && p.pends.length > 0);
+  let html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Meu controle de processos</h1><p>${indAtual.nome}</p></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" onclick="tela='admin';render()">Voltar</button></div></div></div><div class="container"><div class="dashboard-grid"><div class="stat-card"><div class="stat-title">Processos com pendências</div><div class="stat-value">${pendentes.length}</div></div></div><div id="processosList"></div>${isAdmin ? '<button class="fab" onclick="openProcModal()">+</button>' : ''}</div>`;
   app.innerHTML = html;
+  if (!pendentes.length) {
+    document.getElementById('processosList').innerHTML = '<div class="stat-card">Nenhum processo com pendências.</div>';
+    return;
+  }
   let listHtml = '';
-  list.forEach(proc => {
-    const totalPends = proc.pends?.length || 0;
-    const progresso = 0;
-    let badgeClass = 'badge-medium';
+  pendentes.forEach(proc => {
     const prioridade = proc.prioridade || 'media';
+    let badgeClass = 'badge-medium';
     if (prioridade === 'alta') badgeClass = 'badge-high';
     else if (prioridade === 'baixa') badgeClass = 'badge-low';
-    listHtml += `<div class="process-card"><div class="card-header" onclick="expCard='${expCard === proc.id ? '' : proc.id}';renderIndicadorList()"><div class="avatar">${ini(proc.nome)}</div><div class="card-info"><div class="card-title">${proc.nome}</div><div class="card-subtitle">${proc.tipo}</div><div class="progress-bar"><div class="progress-fill" style="width:${progresso}%"></div></div></div><div class="badge-priority ${badgeClass}">${prioridade === 'alta' ? 'Urgente' : prioridade === 'baixa' ? 'Baixa' : 'Média'}</div><span class="expand-icon ${expCard === proc.id ? 'open' : ''}">▼</span></div>${expCard === proc.id ? `<div class="card-body"><div class="card-subtitle">Pendências:</div><div class="pend-chips">${(proc.pends || []).map(p => `<span class="filter-btn" style="background:var(--red-bg);color:var(--red);margin:4px">${p}</span>`).join('')}</div>${proc.obs ? `<div><strong>Obs:</strong> ${proc.obs}</div>` : ''}${isAdmin ? `<div style="margin-top:12px"><button class="filter-btn" onclick="editProc('${proc.id}')">✏️ Editar</button><button class="filter-btn" style="background:var(--red-bg);color:var(--red)" onclick="delProc('${proc.id}')">🗑️ Remover</button><button class="filter-btn active" onclick="marcarOK('${proc.id}')">✓ Marcar OK</button></div>` : ''}</div>` : ''}</div>`;
+    listHtml += `<div class="process-card"><div class="card-header" onclick="expCard='${expCard === proc.id ? '' : proc.id}';renderIndicador()"><div class="avatar">${ini(proc.nome)}</div><div class="card-info"><div class="card-title">${proc.nome}</div><div class="card-subtitle">${proc.tipo}</div></div><div class="badge-priority ${badgeClass}">${prioridade === 'alta' ? 'Urgente' : prioridade === 'baixa' ? 'Baixa' : 'Média'}</div><span class="expand-icon ${expCard === proc.id ? 'open' : ''}">▼</span></div>${expCard === proc.id ? `<div class="card-body"><div class="card-subtitle">Pendências:</div><div class="pend-chips">${(proc.pends || []).map(p => `<span class="chip">${p}</span>`).join('')}</div>${proc.obs ? `<div><strong>Obs:</strong> ${proc.obs}</div>` : ''}${isAdmin ? `<div class="actions"><button class="btn btn-outline" onclick="editProc('${proc.id}')">✏️ Editar</button><button class="btn btn-danger" onclick="delProc('${proc.id}')">🗑️ Remover</button><button class="btn btn-primary" onclick="marcarOK('${proc.id}')">✓ Marcar OK</button></div>` : ''}</div>` : ''}</div>`;
   });
-  document.getElementById('processosList').innerHTML = listHtml || '<div class="stat-card">Nenhum processo com pendências.</div>';
-  document.getElementById('sortSelect').onchange = (e) => { ordenacao = e.target.value; renderIndicadorList(); };
+  document.getElementById('processosList').innerHTML = listHtml;
 }
+
+// ---------- AÇÕES ADMIN ----------
 window.selecionarIndicador = (id) => {
   indAtual = indicadores.find(i => i.id === id);
   tela = 'indicador';
@@ -241,13 +598,13 @@ window.editInd = (id) => {
   }
 };
 window.delInd = (id) => {
-  if (confirm('Remover indicador e todos os processos?')) {
+  if (confirm('Remover indicador e todos os processos vinculados?')) {
     db.collection('processos').where('indicadorId', '==', id).get().then(snap => {
       const batch = db.batch();
       snap.forEach(d => batch.delete(d.ref));
       batch.delete(db.collection('indicadores').doc(id));
       return batch.commit();
-    }).then(() => showToast('Removido')).catch(e => showToast('Erro', 'error'));
+    }).then(() => showToast('Removido')).catch(() => showToast('Erro', 'error'));
   }
 };
 function openIndModal() {
@@ -265,6 +622,8 @@ function openIndModal() {
     }
   }
 }
+
+// ---------- AÇÕES PROCESSO ----------
 window.openProcModal = () => {
   fNome = '';
   fTipo = TIPOS[0];
@@ -272,7 +631,7 @@ window.openProcModal = () => {
   fObs = '';
   editId = null;
   fPrioridade = 'media';
-  const modalHtml = `<div class="modal-overlay" id="procModal"><div class="modal-sheet"><div class="modal-header"><h3>${editId ? 'Editar Processo' : 'Novo Processo'}</h3><button onclick="closeProcModal()">✖️</button></div><div class="modal-body"><div class="field"><label>Nome do cliente</label><input id="procNome" value="${fNome}"></div><div class="field"><label>Tipo</label><select id="procTipo">${TIPOS.map(t => `<option ${t === fTipo ? 'selected' : ''}>${t}</option>`).join('')}</select></div><div class="field"><label>Pendências</label><div id="pendList"></div><div style="display:flex;gap:8px;margin-top:8px"><input id="customPend" placeholder="Personalizada" style="flex:1"><button class="filter-btn" onclick="addCustomPend()">+</button></div></div><div class="field"><label>Observações</label><textarea id="procObs">${fObs}</textarea></div><div class="field"><label>Prioridade</label><div><button class="prio-btn ${fPrioridade === 'alta' ? 'active' : ''}" onclick="setPrio('alta')">Alta</button><button class="prio-btn ${fPrioridade === 'media' ? 'active' : ''}" onclick="setPrio('media')">Média</button><button class="prio-btn ${fPrioridade === 'baixa' ? 'active' : ''}" onclick="setPrio('baixa')">Baixa</button></div></div><button class="filter-btn active" onclick="saveProc()">Salvar</button></div></div></div>`;
+  const modalHtml = `<div class="modal-overlay" id="procModal"><div class="modal-sheet"><div class="modal-header"><h3>${editId ? 'Editar Processo' : 'Novo Processo'}</h3><button onclick="closeProcModal()" style="font-size:1.5rem">✖️</button></div><div class="modal-body"><div class="field"><label>Nome do cliente</label><input id="procNome" value="${fNome.replace(/"/g, '&quot;')}"></div><div class="field"><label>Tipo</label><select id="procTipo">${TIPOS.map(t => `<option ${t === fTipo ? 'selected' : ''}>${t}</option>`).join('')}</select></div><div class="field"><label>Pendências</label><div id="pendList"></div><div style="display:flex;gap:8px;margin-top:8px"><input id="customPend" placeholder="Personalizada" style="flex:1"><button class="btn btn-outline" onclick="addCustomPend()">+</button></div></div><div class="field"><label>Observações</label><textarea id="procObs">${fObs}</textarea></div><div class="field"><label>Prioridade</label><div class="prio-group"><button class="prio-btn ${fPrioridade === 'alta' ? 'active' : ''}" onclick="setPrio('alta')">Alta</button><button class="prio-btn ${fPrioridade === 'media' ? 'active' : ''}" onclick="setPrio('media')">Média</button><button class="prio-btn ${fPrioridade === 'baixa' ? 'active' : ''}" onclick="setPrio('baixa')">Baixa</button></div></div><div style="display:flex;gap:12px;margin-top:24px"><button class="btn btn-primary" onclick="saveProc()">Salvar</button><button class="btn btn-outline" onclick="closeProcModal()">Cancelar</button></div></div></div></div>`;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
   renderPendList();
   window.setPrio = (p) => {
@@ -295,25 +654,13 @@ window.openProcModal = () => {
     if (!nome) return showToast('Nome obrigatório', 'error');
     const data = {
       indicadorId: indAtual.id,
-      nome,
-      tipo,
-      pends: fPends,
-      obs,
-      prioridade: fPrioridade,
+      nome, tipo, pends: fPends, obs, prioridade: fPrioridade,
       data: firebase.firestore.FieldValue.serverTimestamp()
     };
     if (editId) {
-      db.collection('processos').doc(editId).update(data).then(() => {
-        showToast('Atualizado');
-        closeProcModal();
-        render();
-      });
+      db.collection('processos').doc(editId).update(data).then(() => { showToast('Atualizado'); closeProcModal(); render(); });
     } else {
-      db.collection('processos').add(data).then(() => {
-        showToast('Cadastrado');
-        closeProcModal();
-        render();
-      });
+      db.collection('processos').add(data).then(() => { showToast('Cadastrado'); closeProcModal(); render(); });
     }
   };
   window.closeProcModal = () => document.getElementById('procModal')?.remove();
@@ -321,7 +668,7 @@ window.openProcModal = () => {
 function renderPendList() {
   const div = document.getElementById('pendList');
   if (div) {
-    div.innerHTML = PPAD.map(p => `<button class="filter-btn" style="margin:4px;background:${fPends.includes(p) ? 'var(--blue)' : 'var(--bg-tertiary)'};color:${fPends.includes(p) ? 'white' : 'var(--text-primary)'}" onclick="togglePend('${p}')">${p}</button>`).join('');
+    div.innerHTML = PPAD.map(p => `<button class="btn btn-outline" style="margin:4px;background:${fPends.includes(p) ? 'var(--accent)' : 'var(--surface-hover)'};color:${fPends.includes(p) ? 'white' : 'var(--text-primary)'}" onclick="togglePend('${p}')">${p}</button>`).join('');
   }
 }
 window.togglePend = (p) => {
@@ -344,12 +691,16 @@ window.editProc = (id) => {
 };
 window.delProc = (id) => {
   if (confirm('Remover processo?')) {
-    db.collection('processos').doc(id).delete().then(() => showToast('Removido')).catch(e => showToast('Erro', 'error'));
+    db.collection('processos').doc(id).delete().then(() => showToast('Removido')).catch(() => showToast('Erro', 'error'));
   }
 };
 window.marcarOK = (id) => {
-  db.collection('processos').doc(id).update({ pends: [] }).then(() => showToast('Processo OK!')).catch(e => showToast('Erro', 'error'));
+  db.collection('processos').doc(id).update({ pends: [] }).then(() => {
+    showToast('Processo OK!');
+    render(); // recarrega e o processo desaparece
+  }).catch(() => showToast('Erro', 'error'));
 };
+
 loadTheme();
 render();
 </script>
