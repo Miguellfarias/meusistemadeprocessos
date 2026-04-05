@@ -68,7 +68,6 @@ button {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(8px);
-  background-color: rgba(var(--surface-rgb, 0,0,0), 0.9);
 }
 .header-content {
   max-width: 1200px;
@@ -493,7 +492,7 @@ function render() {
           if (snap.empty) document.getElementById('loginErr').innerText = 'PIN inválido';
           else {
             indAtual = { id: snap.docs[0].id, ...snap.docs[0].data() };
-            isAdmin = false;
+            isAdmin = false;   // FORÇA ADMIN FALSO
             tela = 'indicador';
             render();
           }
@@ -523,6 +522,12 @@ function render() {
   }
   else if (tela === 'indicador') {
     unsubAll();
+    // Proteção extra: se não tiver indAtual ou isAdmin for inconsistente, força logout
+    if (!indAtual) {
+      tela = 'login';
+      render();
+      return;
+    }
     unsubProc = db.collection('processos').where('indicadorId', '==', indAtual.id).onSnapshot(snap => {
       processos = [];
       snap.forEach(d => processos.push({ id: d.id, ...d.data() }));
@@ -557,10 +562,25 @@ function renderIndicador() {
   const app = document.getElementById('app');
   // Somente processos com pendências
   const pendentes = processos.filter(p => p.pends && p.pends.length > 0);
-  // CORREÇÃO DE SEGURANÇA: botão Voltar só vai para admin SE isAdmin for true
-  const backAction = isAdmin ? "tela='admin';render()" : "tela='login';render()";
-  let html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Meu controle de processos</h1><p>${indAtual.nome}</p></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" onclick="${backAction}">Voltar</button></div></div></div><div class="container"><div class="dashboard-grid"><div class="stat-card"><div class="stat-title">Processos com pendências</div><div class="stat-value">${pendentes.length}</div></div></div><div id="processosList"></div>${isAdmin ? '<button class="fab" onclick="openProcModal()">+</button>' : ''}</div>`;
+  
+  // CORREÇÃO DEFINITIVA: não usar string de ação, sim um evento separado
+  const html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Meu controle de processos</h1><p>${indAtual.nome}</p></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" id="backButtonInd">Voltar</button></div></div></div><div class="container"><div class="dashboard-grid"><div class="stat-card"><div class="stat-title">Processos com pendências</div><div class="stat-value">${pendentes.length}</div></div></div><div id="processosList"></div>${isAdmin ? '<button class="fab" onclick="openProcModal()">+</button>' : ''}</div>`;
   app.innerHTML = html;
+  
+  // Adiciona o evento de voltar de forma segura
+  const backBtn = document.getElementById('backButtonInd');
+  if (backBtn) {
+    backBtn.onclick = () => {
+      if (isAdmin) {
+        tela = 'admin';
+        render();
+      } else {
+        tela = 'login';
+        render();
+      }
+    };
+  }
+  
   if (!pendentes.length) {
     document.getElementById('processosList').innerHTML = '<div class="stat-card">Nenhum processo com pendências.</div>';
     return;
