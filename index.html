@@ -611,9 +611,11 @@ function renderAdmin() {
 
 function renderIndicador() {
   const app = document.getElementById('app');
-  const pendentes = processos.filter(p => p.pends && p.pends.length > 0);
+  // Admin vê TODOS os processos; cliente vê só os com pendências
+  const lista = isAdmin ? processos : processos.filter(p => p.pends && p.pends.length > 0);
+  const pendentes = lista;
   
-  const html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Meu controle de processos</h1><p>${indAtual.nome}</p></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" id="backButtonInd">Voltar</button></div></div></div><div class="container"><div id="processosList"></div>${isAdmin ? '<button class="fab" onclick="openProcModal()">+</button>' : ''}</div>`;
+  const html = `<div class="app-header"><div class="header-content"><div class="logo"><h1>Meu controle de processos</h1><p>${indAtual.nome}</p></div><div class="header-actions"><button class="theme-toggle" onclick="toggleTheme()">🌓</button><button class="back-btn" id="backButtonInd">Voltar</button></div></div></div><div class="container"><div id="processosList"></div>${isAdmin ? '<button class="fab" onclick="openNewProcModal()">+</button>' : ''}</div>`;
   app.innerHTML = html;
   
   const backBtn = document.getElementById('backButtonInd');
@@ -630,7 +632,7 @@ function renderIndicador() {
   }
   
   if (!pendentes.length) {
-    document.getElementById('processosList').innerHTML = '<div class="stat-card">Nenhum processo com pendências.</div>';
+    document.getElementById('processosList').innerHTML = `<div class="stat-card">${isAdmin ? 'Nenhum processo cadastrado. Clique em + para adicionar.' : 'Nenhum processo com pendências.'}</div>`;
     return;
   }
   let listHtml = '';
@@ -639,7 +641,11 @@ function renderIndicador() {
     let badgeClass = 'badge-medium';
     if (prioridade === 'alta') badgeClass = 'badge-high';
     else if (prioridade === 'baixa') badgeClass = 'badge-low';
-    listHtml += `<div class="process-card"><div class="card-header" onclick="expCard='${expCard === proc.id ? '' : proc.id}';renderIndicador()"><div class="avatar">${ini(proc.nome)}</div><div class="card-info"><div class="card-title">${proc.nome}</div><div class="card-subtitle">${proc.tipo}</div></div><div class="badge-priority ${badgeClass}">${prioridade === 'alta' ? 'Urgente' : prioridade === 'baixa' ? 'Baixa' : 'Média'}</div><span class="expand-icon ${expCard === proc.id ? 'open' : ''}">▼</span></div>${expCard === proc.id ? `<div class="card-body"><div class="card-subtitle">Pendências:</div><div class="pend-chips">${(proc.pends || []).map(p => `<span class="chip">${p}</span>`).join('')}</div>${proc.obs ? `<div><strong>Obs:</strong> ${proc.obs}</div>` : ''}${isAdmin ? `<div class="actions"><button class="btn btn-outline" onclick="editProc('${proc.id}')">✏️ Editar</button><button class="btn btn-danger" onclick="delProc('${proc.id}')">🗑️ Remover</button><button class="btn btn-primary" onclick="marcarOK('${proc.id}')">✓ Marcar OK</button></div>` : ''}</div>` : ''}</div>`;
+    const temPends = proc.pends && proc.pends.length > 0;
+    const subtitle = isAdmin
+      ? `${proc.tipo}${temPends ? ` · ${proc.pends.length} pendência${proc.pends.length > 1 ? 's' : ''}` : ' · Sem pendências'}`
+      : proc.tipo;
+    listHtml += `<div class="process-card"><div class="card-header" onclick="expCard='${expCard === proc.id ? '' : proc.id}';renderIndicador()"><div class="avatar">${ini(proc.nome)}</div><div class="card-info"><div class="card-title">${proc.nome}</div><div class="card-subtitle">${subtitle}</div></div><div class="badge-priority ${badgeClass}">${prioridade === 'alta' ? 'Urgente' : prioridade === 'baixa' ? 'Baixa' : 'Média'}</div><span class="expand-icon ${expCard === proc.id ? 'open' : ''}">▼</span></div>${expCard === proc.id ? `<div class="card-body"><div class="card-subtitle">Pendências${isAdmin && temPends ? ' (toque para dar baixa)' : ''}:</div><div class="pend-chips">${temPends ? (proc.pends || []).map((p, i) => `<span class="chip" ${isAdmin ? `onclick="removePend('${proc.id}', ${i})" style="cursor:pointer"` : ''}>${p}${isAdmin ? ' ✕' : ''}</span>`).join('') : '<span style="color:var(--text-tertiary);font-size:0.8rem">Nenhuma pendência</span>'}</div>${proc.obs ? `<div><strong>Obs:</strong> ${proc.obs}</div>` : ''}${isAdmin ? `<div class="actions"><button class="btn btn-outline" onclick="editProc('${proc.id}')">✏️ Editar</button><button class="btn btn-danger" onclick="delProc('${proc.id}')">🗑️ Remover</button>${temPends ? `<button class="btn btn-primary" onclick="marcarOK('${proc.id}')">✓ Marcar tudo OK</button>` : ''}</div>` : ''}</div>` : ''}</div>`;
   });
   document.getElementById('processosList').innerHTML = listHtml;
 }
@@ -686,20 +692,25 @@ function openIndModal() {
 }
 
 // ---------- AÇÕES PROCESSO ----------
-window.openProcModal = () => {
+window.openNewProcModal = () => {
+  // Limpa o estado APENAS quando vai cadastrar um novo processo
   fNome = '';
   fTipo = TIPOS[0];
   fPends = [];
   fObs = '';
   editId = null;
   fPrioridade = 'media';
-  const modalHtml = `<div class="modal-overlay" id="procModal"><div class="modal-sheet"><div class="modal-header"><h3>${editId ? 'Editar Processo' : 'Novo Processo'}</h3><button onclick="closeProcModal()" style="font-size:1.5rem">✖️</button></div><div class="modal-body"><div class="field"><label>Nome do cliente</label><input id="procNome" value="${fNome.replace(/"/g, '&quot;')}"></div><div class="field"><label>Tipo</label><select id="procTipo">${TIPOS.map(t => `<option ${t === fTipo ? 'selected' : ''}>${t}</option>`).join('')}</select></div><div class="field"><label>Pendências</label><div id="pendList"></div><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><input id="customPend" placeholder="Personalizada" style="flex:1"><button class="btn btn-outline" onclick="addCustomPend()">+</button></div></div><div class="field"><label>Observações</label><textarea id="procObs">${fObs}</textarea></div><div class="field"><label>Prioridade</label><div class="prio-group"><button class="prio-btn ${fPrioridade === 'alta' ? 'active' : ''}" onclick="setPrio('alta')">Alta</button><button class="prio-btn ${fPrioridade === 'media' ? 'active' : ''}" onclick="setPrio('media')">Média</button><button class="prio-btn ${fPrioridade === 'baixa' ? 'active' : ''}" onclick="setPrio('baixa')">Baixa</button></div></div><div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap"><button class="btn btn-primary" onclick="saveProc()">Salvar</button><button class="btn btn-outline" onclick="closeProcModal()">Cancelar</button></div></div></div></div>`;
+  openProcModal();
+};
+
+window.openProcModal = () => {
+  const modalHtml = `<div class="modal-overlay" id="procModal"><div class="modal-sheet"><div class="modal-header"><h3>${editId ? 'Editar Processo' : 'Novo Processo'}</h3><button onclick="closeProcModal()" style="font-size:1.5rem">✖️</button></div><div class="modal-body"><div class="field"><label>Nome do cliente</label><input id="procNome" value="${(fNome || '').replace(/"/g, '&quot;')}"></div><div class="field"><label>Tipo</label><select id="procTipo">${TIPOS.map(t => `<option ${t === fTipo ? 'selected' : ''}>${t}</option>`).join('')}</select></div><div class="field"><label>Pendências</label><div id="pendList"></div><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><input id="customPend" placeholder="Personalizada" style="flex:1"><button class="btn btn-outline" onclick="addCustomPend()">+</button></div></div><div class="field"><label>Observações</label><textarea id="procObs">${fObs || ''}</textarea></div><div class="field"><label>Prioridade</label><div class="prio-group"><button class="prio-btn ${fPrioridade === 'alta' ? 'active' : ''}" onclick="setPrio('alta', this)">Alta</button><button class="prio-btn ${fPrioridade === 'media' ? 'active' : ''}" onclick="setPrio('media', this)">Média</button><button class="prio-btn ${fPrioridade === 'baixa' ? 'active' : ''}" onclick="setPrio('baixa', this)">Baixa</button></div></div><div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap"><button class="btn btn-primary" onclick="saveProc()">Salvar</button><button class="btn btn-outline" onclick="closeProcModal()">Cancelar</button></div></div></div></div>`;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
   renderPendList();
-  window.setPrio = (p) => {
+  window.setPrio = (p, btn) => {
     fPrioridade = p;
-    document.querySelectorAll('.prio-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+    document.querySelectorAll('.prio-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
   };
   window.addCustomPend = () => {
     const val = document.getElementById('customPend').value.trim();
@@ -760,6 +771,18 @@ window.marcarOK = (id) => {
   db.collection('processos').doc(id).update({ pends: [] }).then(() => {
     showToast('Processo OK!');
     render();
+  }).catch(() => showToast('Erro', 'error'));
+};
+window.removePend = (procId, idx) => {
+  const proc = processos.find(p => p.id === procId);
+  if (!proc) return;
+  const pendName = (proc.pends || [])[idx];
+  if (!pendName) return;
+  if (!confirm(`Dar baixa em "${pendName}"?`)) return;
+  const newPends = [...(proc.pends || [])];
+  newPends.splice(idx, 1);
+  db.collection('processos').doc(procId).update({ pends: newPends }).then(() => {
+    showToast('Pendência baixada');
   }).catch(() => showToast('Erro', 'error'));
 };
 
